@@ -321,13 +321,13 @@ ask_pos(Str, Color, Row-Col):-
 	read_until_between(0, 5, Col).
 	%format('\nThe values given were:\nrow=~d\ncol=~d\n',[Row, Col]).
 	
-capture_piece(Board, Row, Col, New_Board):-
-	% falta o teste se é piece enimiga
+capture_piece(Board, Color, New_Board):-
+	ask_pos('Take piece at ', Color, Row-Col),
+	get_piece(Board, Row, Col, Piece),
+	Piece \= 'O', Piece \= Color,
 	set_piece(Board, Row, Col, 'O', New_Board).
-	% Aqui tinha a cena de white/blackCount++
-
 	
-
+	
 piece_drop(Board, Color, New_Board):-
 	ask_pos('Drop piece at ', Color, Row-Col),
 	
