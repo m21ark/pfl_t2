@@ -1,3 +1,5 @@
+:- use_module(library(lists)).
+
 % ======================= USEFUL FUNCS =======================
 
 switch(X, [Val:Goal|Cases]):-
@@ -11,7 +13,25 @@ for_loop_(N, Func):-
 	between(0, N, _),
 	call(Func),
 	fail.
+	
+	
+% ======================= MATRIX TRANSPOSE =======================
 
+transpose([], []).
+transpose([F|Fs], Ts) :-
+    transpose(F, [F|Fs], Ts).
+
+transpose([], _, []).
+transpose([_|Rs], Ms, [Ts|Tss]) :-
+        lists_firsts_rests(Ms, Ts, Ms1),
+        transpose(Rs, Ms1, Tss).
+
+lists_firsts_rests([], [], []).
+lists_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
+        lists_firsts_rests(Rest, Fs, Oss).
+
+isList([_|_]).
+isList([]).
 
 % ======================= INPUT STUFF =======================
 
@@ -95,26 +115,6 @@ game_menu_show:- % (T, S, P, V)
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
 
-
-main:-
-	game_menu_show,
-	read_until_between(1,3, OPT),
-	
-	switch(OPT, [
-		1: write('option 1'),
-		2: write('option 2'),
-		3: write('option 3')
-	]),
-
-	nl, write('End').
-	
-
-
-
-
-
-
-
 % ======================= Cenas do stor =======================
 
 play_game:-
@@ -159,6 +159,91 @@ choose_move(2, GameState, Moves, Move):-
 	setof(Value-Mv, NewState^( member(Mv, Moves),
 	move(GameState, Mv, NewState),
 	evaluate_board(NewState, Value) ), [_V-Move|_]).
+
+
+
+% ======================= MAIN GAME =======================
+
+/*
+	[['O','O','O','O','O'],
+	 ['O','O','O','O','O'],
+	 ['O','O','O','O','O'],
+	 ['O','O','O','O','O'],
+	 ['O','O','O','O','O'],
+	 ['O','O','O','O','O']].
+*/
+	 
+whiteTurn = true. 
+whiteCount = 12.
+blackCount = 12.	 
+
+
+% nb_setval(name, value) and nb_getval(name, value).
+
+main:-
+	game_menu_show,
+	read_until_between(1,3, OPT),
+	
+	switch(OPT, [
+		1: play,
+		2: write('option 2'),
+		3: write('option 3')
+	]),
+
+	nl, write('End of program.').
+	
+
+
+
+play:-
+	write('Play func').
+
+
+% ====================== BOARD PRINT ======================
+
+board_print([]):-!.
+board_print([H|T]) :- 
+	
+	\+ isList(H) -> 
+	write(H), 
+	write('  '),
+	board_print(T);
+	
+	board_print(H),
+	nl, 
+	board_print(T).
+
+board_print_:-
+	B = [['B','W','B','W','B'],
+		 ['O','O','O','B','O'],
+		 ['W','O','O','O','W'],
+		 ['B','O','O','W','O'],
+		 ['W','O','B','O','B'],
+		 ['O','B','W','B','W']],
+	 
+	 board_print(B).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
