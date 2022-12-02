@@ -215,17 +215,44 @@ main:-
 	
 
 
-
 play:-
 
-	Board = [['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O']],
+	Board = [['B','W','B','W','B'],
+			 ['O','O','O','B','O'],
+			 ['W','B','W','O','W'],
+			 ['B','W','O','W','O'],
+			 ['W','O','B','O','B'],
+			 ['O','B','W','B','W']],
 
-	drop_phase(Board, 12, 12, 1, New_Board).
+	% drop_phase(Board, 12, 12, 1, New_Board).
+	
+	board_print(Board),
+	piece_move(Board, 'W', New_Board),
+	board_print(New_Board).
+	
+	
+drop_phase(Board, _, 0, _, Board):-!.
+drop_phase(Board, 0, _, _, Board):-!.
+drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
+
+	board_print(Board),
+	format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+	
+	WhiteTurn==1-> 
+		% if(whiteTurn and can_set_any('W'))
+		piece_drop(Board, 'W', Board_),
+		New_WC is WhiteCount-1,
+		drop_phase(Board_, New_WC, BlackCount, 0, New_Board);
+
+	piece_drop(Board, 'B', Board_),
+	New_BC is BlackCount-1,
+	drop_phase(Board_, WhiteCount, New_BC, 1, New_Board).
+
+
+
+
+capture_phase:-true.
+	
 
 
 
@@ -266,6 +293,8 @@ set_piece(Board, Row, Col, Color, New_Board):-
 	% def can_set_any(color)
 	% def check_cross(row, col, color)
 	% def detect_match()
+	% def check_num_board_stones()
+	% def check_if_winner()
 	% def check_num_board_stones()
 
 printColorTag(Color):-
@@ -309,34 +338,13 @@ swap_turn(Bool, New_Bool):-
 	New_Bool = 1.
 	
 
-drop_phase(Board, _, 0, _, Board):-!.
-drop_phase(Board, 0, _, _, Board):-!.
-drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
+piece_move(Board, Color, New_Board):-
 
-	board_print(Board),	
-	format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
-	
-	WhiteTurn==1-> 
-		% if(whiteTurn and can_set_any('W'))
-		piece_drop(Board, 'W', Board_),
-		New_WC is WhiteCount-1,
-		drop_phase(Board_, New_WC, BlackCount, 0, New_Board);
-
-	piece_drop(Board, 'B', Board_),
-	New_BC is BlackCount-1,
-	drop_phase(Board_, WhiteCount, New_BC, 1, New_Board).
-
-
-	
-	
-
-
-
-
-
-
-
-
+	ask_pos('Move from ', Color, CurRow-CurCol),
+	set_piece(Board, CurRow, CurCol, 'O', NB),
+	% TO-DO CHECK IF VALID MOVE
+	ask_pos('Move to ', Color, NewRow-NewCol),
+	set_piece(NB, NewRow, NewCol, Color, New_Board).
 
 
 
