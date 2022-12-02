@@ -379,59 +379,39 @@ check_if_winner(Board, Winner):-
 	Winner = 'O'.
 
 	
-
-check_cross_up(Board, Row, Col, Color):-
+check_cross(Board, Row, Col, Color):-
+	(
+	get_piece(Board, Row, Col, Pos),
+	Pos == 'O'
+	),
+	(
 	Col1 is Col-1,
 	Col1 >= 0->
 		get_piece(Board, Row, Col1, Pos1),
 		Pos1 \= Color;
-	true.
-
-check_cross_down(Board, Row, Col, Color):-
-	Col1 is Col+1,
-	Col1 =< 5->
-		get_piece(Board, Row, Col1, Pos1),
-		Pos1 \= Color;
-	true.
-	
-check_cross_left(Board, Row, Col, Color):-
+	true
+	),
+	(
+	Col2 is Col+1,
+	Col2 =< 5->
+		get_piece(Board, Row, Col2, Pos2),
+		Pos2 \= Color;
+	true
+	),
+	(
 	Row1 is Row-1,
 	Row1 >= 0->
-		get_piece(Board, Row1, Col, Pos1),
-		Pos1 \= Color;
-	true.
-	
-check_cross_right(Board, Row, Col, Color):-
-	Row1 is Row+1,
-	Row1 =< 4->
-		get_piece(Board, Row1, Col, Pos1),
-		Pos1 \= Color;
-	true.
-
-
-check_cross_center(Board, Row, Col, Color):-
-	get_piece(Board, Row, Col, Pos),
-	Pos == 'O'.
-
-check_cross(Board, Row, Col, Color):-
-	check_cross_center(Board, Row, Col, Color),
-	check_cross_up(Board, Row, Col, Color),
-	check_cross_down(Board, Row, Col, Color),
-	check_cross_left(Board, Row, Col, Color),
-	check_cross_right(Board, Row, Col, Color).
-
-
-teste(X,Y, C):-	
-
-	Board = [['B','W','B','W','B'],
-			 ['O','O','O','B','O'],
-			 ['W','O','W','O','B'],
-			 ['B','W','O','W','O'],
-			 ['W','O','B','O','B'],
-			 ['O','B','W','B','W']],
-			 
-
-	check_cross(Board, X, Y, C).
+		get_piece(Board, Row1, Col, Pos3),
+		Pos3 \= Color;
+	true
+	),
+	(
+	Row2 is Row+1,
+	Row2 =< 4->
+		get_piece(Board, Row2, Col, Pos4),
+		Pos4 \= Color;
+	true
+	).
 
 
 
