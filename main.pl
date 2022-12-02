@@ -337,13 +337,17 @@ swap_turn(Bool, New_Bool):-
 	New_Bool = 0;
 	New_Bool = 1.
 	
-
+	
 piece_move(Board, Color, New_Board):-
 
 	ask_pos('Move from ', Color, CurRow-CurCol),
+	get_piece(Board, CurRow, CurCol, CurPos),
+	CurPos == Color,
 	set_piece(Board, CurRow, CurCol, 'O', NB),
-	% TO-DO CHECK IF VALID MOVE
+	
 	ask_pos('Move to ', Color, NewRow-NewCol),
+	get_piece(Board, NewRow, NewCol, NPos),
+	NPos == 'O',
 	set_piece(NB, NewRow, NewCol, Color, New_Board).
 
 
