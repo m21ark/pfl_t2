@@ -314,16 +314,17 @@ drop_phase(Board, 0, _, _, Board):-!.
 drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
 
 	board_print(Board),	
-	get_color(WhiteTurn, Color),
+	format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+	
+	WhiteTurn==1-> 
+		% if(whiteTurn and can_set_any('W'))
+		piece_drop(Board, 'W', Board_),
+		New_WC is WhiteCount-1,
+		drop_phase(Board_, New_WC, BlackCount, 0, New_Board);
 
-	% if(whiteTurn and can_set_any('W'))
-	piece_drop(Board, Color, Board_),
-	
-	New_WC is WhiteCount-1,
+	piece_drop(Board, 'B', Board_),
 	New_BC is BlackCount-1,
-	swap_turn(WhiteTurn, New_Turn),
-	
-	drop_phase(Board_, New_WC, New_BC, New_Turn, New_Board).
+	drop_phase(Board_, WhiteCount, New_BC, 1, New_Board).
 
 
 	
