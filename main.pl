@@ -409,7 +409,12 @@ check_cross_right(Board, Row, Col, Color):-
 	true.
 
 
+check_cross_center(Board, Row, Col, Color):-
+	get_piece(Board, Row, Col, Pos),
+	Pos == 'O'.
+
 check_cross(Board, Row, Col, Color):-
+	check_cross_center(Board, Row, Col, Color),
 	check_cross_up(Board, Row, Col, Color),
 	check_cross_down(Board, Row, Col, Color),
 	check_cross_left(Board, Row, Col, Color),
@@ -420,7 +425,7 @@ teste(X,Y, C):-
 
 	Board = [['B','W','B','W','B'],
 			 ['O','O','O','B','O'],
-			 ['W','O','W','O','W'],
+			 ['W','O','W','O','B'],
 			 ['B','W','O','W','O'],
 			 ['W','O','B','O','B'],
 			 ['O','B','W','B','W']],
@@ -428,30 +433,6 @@ teste(X,Y, C):-
 
 	check_cross(Board, X, Y, C).
 
-/*
-
-	if(col-1 >= 0):
-		pos = board[col-1][row]
-		if(pos == color): return False
-		
-	if(col+1 <= 4):
-		pos = board[col+1][row]
-		if(pos == color): return False
-		
-	if(row-1 >= 0):
-		pos = board[col][row-1]
-		if(pos == color): return False
-		
-	if(row+1 <= 4):
-		pos = board[col][row+1]
-		if(pos == color): return False
-
-	print(f"\nPossible to add '{color}' at col={col} row={row} ")
-	return True
-
-
-
-*/
 
 
 
