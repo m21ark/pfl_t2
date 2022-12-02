@@ -231,7 +231,7 @@ main:-
 play:-
 
 	Board = [['B','W','B','W','B'],
-			 ['O','O','O','B','O'],
+			 ['O','B','O','B','O'],
 			 ['W','O','W','O','W'],
 			 ['B','W','O','W','O'],
 			 ['W','O','B','O','B'],
@@ -240,8 +240,10 @@ play:-
 	% drop_phase(Board, 12, 12, 1, New_Board).
 	
 	board_print(Board),
-	check_if_winner(Board, Res),
-	write(Res).
+	C = can_set_any(Board, 'B', Row, Col),
+	C->
+		format('Space at: Row=~d , Col=~d',[Row, Col]);
+	true.
 	
 	
 drop_phase(Board, _, 0, _, Board):-!.
@@ -303,7 +305,6 @@ set_piece(Board, Row, Col, Color, New_Board):-
 	list_replace(Board, Col ,New_Row ,New_Board).
 
 % TO-DO FUNCS:	
-	% def can_set_any(color)
 	% def detect_match()
 
 printColorTag(Color):-
@@ -412,11 +413,10 @@ check_cross(Board, Row, Col, Color):-
 		Pos4 \= Color;
 	true
 	).
+	
 
-
-
-
-
+can_set_any(Board, Color, Row, Col):-
+	check_cross(Board, Row, Col, Color),!.
 
 
 
