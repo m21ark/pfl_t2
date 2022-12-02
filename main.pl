@@ -15,7 +15,7 @@ for_loop_(N, Func):-
 	fail.
 	
 	
-% ======================= MATRIX TRANSPOSE =======================
+% ======================= LIST STUFF =======================
 
 transpose([], []).
 transpose([F|Fs], Ts) :-
@@ -32,6 +32,27 @@ lists_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
 
 isList([_|_]).
 isList([]).
+
+
+insert_elem(0, [H|T], E, Ret):- append([E,H], T, Ret), !.
+insert_elem(I, [], E, Ret):- Ret = [E],!.
+insert_elem(I, [H|T], E, Ret):-
+	I > 0, 
+	I1 is I-1,
+	insert_elem(I1, T, E, L),
+	append([H], L, Ret).
+  
+delete_elem(0, [H|T], Ret):- append([], T, Ret), !.
+delete_elem(I, [H|T], Ret):-
+	I > 0, 
+	I1 is I-1,
+	delete_elem(I1, T, L),
+	append([H], L, Ret).
+
+list_replace(List, Index, Value, New_List):-
+	delete_elem(Index, List, List_1),
+	insert_elem(Index, List_1, Value, New_List).
+	
 
 % ======================= INPUT STUFF =======================
 
@@ -196,46 +217,117 @@ main:-
 
 
 play:-
-	write('Play func').
+
+	Board = [['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O']],
+
+	drop_phase(Board, 12, 12, 1, New_Board).
+
 
 
 % ====================== BOARD PRINT ======================
 
-board_print([]):-!.
-board_print([H|T]) :- 
+board_print(Board):- 
+	write('\n '), 
+	board_print_(Board, -1), 
+	print_n('-', 14),
+	write('\n 0  1  2  3  4\n').
+
+board_print_([], _):-!.
+board_print_([H|T], N):- 
 	
 	\+ isList(H) -> 
 	write(H), 
 	write('  '),
-	board_print(T);
+	board_print_(T,N1);
 	
-	board_print(H),
-	nl, 
-	board_print(T).
-
-board_print_:-
-	B = [['B','W','B','W','B'],
-		 ['O','O','O','B','O'],
-		 ['W','O','O','O','W'],
-		 ['B','O','O','W','O'],
-		 ['W','O','B','O','B'],
-		 ['O','B','W','B','W']],
-	 
-	 board_print(B).
+	N1 is N+1,
+	board_print_(H,N1),
+	write('| '),write(N1),write('\n '), 
+	board_print_(T,N1).
 
 
+% ====================== BOARD LOGIC ======================
+
+get_piece(Board, Row, Col, Piece):-
+	nth0(Col, Board, Row_),
+	nth0(Row, Row_, Piece).
+
+set_piece(Board, Row, Col, Color, New_Board):-
+	nth0(Col, Board , Row_),
+	list_replace(Row_, Row, Color, New_Row),
+	list_replace(Board, Col ,New_Row ,New_Board).
+
+% TO-DO FUNCS:	
+	% def can_set_any(color)
+	% def check_cross(row, col, color)
+	% def detect_match()
+	% def check_num_board_stones()
+
+printColorTag(Color):-
+	Color == 'W'->
+	write('White: ');
+	write('Black: ').
+
+% ask_pos('Position desired ', Pos).	
+ask_pos(Str, Color, Row-Col):-
+	printColorTag(Color),
+	write(Str),
+	read_until_between(0, 4, Row),
+	get_char(_),
+	read_until_between(0, 5, Col).
+	%format('\nThe values given were:\nrow=~d\ncol=~d\n',[Row, Col]).
+	
+capture_piece(Board, Row, Col, New_Board):-
+	% falta o teste se é piece enimiga
+	set_piece(Board, Row, Col, 'O', New_Board).
+	% Aqui tinha a cena de white/blackCount++
+
+	
+
+piece_drop(Board, Color, New_Board):-
+	ask_pos('Drop piece at ', Color, Row-Col),
+	
+	% call check_cross
+	% check if Pos is empty
+	% white/blackCount-- 
+	set_piece(Board, Row, Col, Color, New_Board).
+	
+
+get_color(WhiteTurn, Color):-
+	WhiteTurn == 1 -> 
+	Color = 'W';
+	Color = 'B'.
+	
+swap_turn(Bool, New_Bool):-
+	Bool == 1 -> 
+	New_Bool = 0;
+	New_Bool = 1.
+	
+
+drop_phase(Board, _, 0, _, Board):-!.
+drop_phase(Board, 0, _, _, Board):-!.
+drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
+
+	board_print(Board),	
+	get_color(WhiteTurn, Color),
+
+	% if(whiteTurn and can_set_any('W'))
+	piece_drop(Board, Color, Board_),
+	
+	New_WC is WhiteCount-1,
+	New_BC is BlackCount-1,
+	swap_turn(WhiteTurn, New_Turn),
+	
+	drop_phase(Board_, New_WC, New_BC, New_Turn, New_Board).
 
 
-
-
-
-
-
-
-
-
-
-
+	
+	
 
 
 
