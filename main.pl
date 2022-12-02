@@ -1,4 +1,6 @@
 :- use_module(library(lists)).
+% :- use_module(library(apply)).
+
 
 % ======================= USEFUL FUNCS =======================
 
@@ -32,6 +34,16 @@ lists_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
 
 isList([_|_]).
 isList([]).
+
+
+countElem_([], _, Acc, Acc):-!.
+countElem_([H|T], E, Acc, Ret):-
+	H==E-> 
+		Acc1 is Acc+1,
+		countElem_(T, E, Acc1, Ret);
+	countElem_(T, E, Acc, Ret).
+	
+countElem(L, E, Count):-countElem_(L, E, 0, Count).
 
 
 insert_elem(0, [H|T], E, Ret):- append([E,H], T, Ret), !.
@@ -227,8 +239,8 @@ play:-
 	% drop_phase(Board, 12, 12, 1, New_Board).
 	
 	board_print(Board),
-	piece_move(Board, 'W', New_Board),
-	board_print(New_Board).
+	check_if_winner(Board, Res),
+	write(Res).
 	
 	
 drop_phase(Board, _, 0, _, Board):-!.
@@ -294,7 +306,6 @@ set_piece(Board, Row, Col, Color, New_Board):-
 	% def check_cross(row, col, color)
 	% def detect_match()
 	% def check_num_board_stones()
-	% def check_if_winner()
 	% def check_num_board_stones()
 
 printColorTag(Color):-
@@ -349,6 +360,29 @@ piece_move(Board, Color, New_Board):-
 	get_piece(Board, NewRow, NewCol, NPos),
 	NPos == 'O',
 	set_piece(NB, NewRow, NewCol, Color, New_Board).
+
+
+
+
+check_if_winner(Board, Winner):- 
+
+	(	
+	flatten(Board, L),
+	countElem(L,'W', Wnum),
+	Wnum =< 2-> Winner = 'B'
+	);
+	
+	(
+	flatten(Board, L),	
+	countElem(L,'B', Bnum),
+	Bnum =< 2-> Winner = 'W'
+	);
+	
+	Winner = 'O'.
+	
+
+
+
 
 
 
