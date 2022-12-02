@@ -1,3 +1,18 @@
+% ======================= USEFUL FUNCS =======================
+
+switch(X, [Val:Goal|Cases]):-
+	(X = Val -> 
+	call(Goal);
+	switch(X, Cases)).
+	
+	
+for_loop(N, Func):-for_loop_(N, Func); true.	
+for_loop_(N, Func):-
+	between(0, N, _),
+	call(Func),
+	fail.
+
+
 % ======================= INPUT STUFF =======================
 
 read_number_acc(Acc, Acc) :- peek_code(10), !.
@@ -84,7 +99,14 @@ game_menu_show:- % (T, S, P, V)
 main:-
 	game_menu_show,
 	read_until_between(1,3, OPT),
-	nl, write(OPT).
+	
+	switch(OPT, [
+		1: write('option 1'),
+		2: write('option 2'),
+		3: write('option 3')
+	]),
+
+	nl, write('End').
 	
 
 
