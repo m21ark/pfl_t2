@@ -150,6 +150,7 @@ game_menu_show:- % (T, S, P, V)
 
 % ======================= Cenas do stor =======================
 
+/*
 play_game:-
 	initial_state(GameState-Player),
 	display_game(GameState-Player),
@@ -192,7 +193,7 @@ choose_move(2, GameState, Moves, Move):-
 	setof(Value-Mv, NewState^( member(Mv, Moves),
 	move(GameState, Mv, NewState),
 	evaluate_board(NewState, Value) ), [_V-Move|_]).
-
+*/
 
 
 % ======================= MAIN GAME =======================
@@ -231,7 +232,7 @@ play:-
 
 	Board = [['B','W','B','W','B'],
 			 ['O','O','O','B','O'],
-			 ['W','B','W','O','W'],
+			 ['W','O','W','O','W'],
 			 ['B','W','O','W','O'],
 			 ['W','O','B','O','B'],
 			 ['O','B','W','B','W']],
@@ -303,10 +304,7 @@ set_piece(Board, Row, Col, Color, New_Board):-
 
 % TO-DO FUNCS:	
 	% def can_set_any(color)
-	% def check_cross(row, col, color)
 	% def detect_match()
-	% def check_num_board_stones()
-	% def check_num_board_stones()
 
 printColorTag(Color):-
 	Color == 'W'->
@@ -379,8 +377,81 @@ check_if_winner(Board, Winner):-
 	);
 	
 	Winner = 'O'.
+
 	
 
+check_cross_up(Board, Row, Col, Color):-
+	Col1 is Col-1,
+	Col1 >= 0->
+		get_piece(Board, Row, Col1, Pos1),
+		Pos1 \= Color;
+	true.
+
+check_cross_down(Board, Row, Col, Color):-
+	Col1 is Col+1,
+	Col1 =< 5->
+		get_piece(Board, Row, Col1, Pos1),
+		Pos1 \= Color;
+	true.
+	
+check_cross_left(Board, Row, Col, Color):-
+	Row1 is Row-1,
+	Row1 >= 0->
+		get_piece(Board, Row1, Col, Pos1),
+		Pos1 \= Color;
+	true.
+	
+check_cross_right(Board, Row, Col, Color):-
+	Row1 is Row+1,
+	Row1 =< 4->
+		get_piece(Board, Row1, Col, Pos1),
+		Pos1 \= Color;
+	true.
+
+
+check_cross(Board, Row, Col, Color):-
+	check_cross_up(Board, Row, Col, Color),
+	check_cross_down(Board, Row, Col, Color),
+	check_cross_left(Board, Row, Col, Color),
+	check_cross_right(Board, Row, Col, Color).
+
+
+teste(X,Y, C):-	
+
+	Board = [['B','W','B','W','B'],
+			 ['O','O','O','B','O'],
+			 ['W','O','W','O','W'],
+			 ['B','W','O','W','O'],
+			 ['W','O','B','O','B'],
+			 ['O','B','W','B','W']],
+			 
+
+	check_cross(Board, X, Y, C).
+
+/*
+
+	if(col-1 >= 0):
+		pos = board[col-1][row]
+		if(pos == color): return False
+		
+	if(col+1 <= 4):
+		pos = board[col+1][row]
+		if(pos == color): return False
+		
+	if(row-1 >= 0):
+		pos = board[col][row-1]
+		if(pos == color): return False
+		
+	if(row+1 <= 4):
+		pos = board[col][row+1]
+		if(pos == color): return False
+
+	print(f"\nPossible to add '{color}' at col={col} row={row} ")
+	return True
+
+
+
+*/
 
 
 
