@@ -237,15 +237,12 @@ play:-
 			 ['W','O','B','O','B'],
 			 ['O','B','W','B','W']],
 
-	% drop_phase(Board, 12, 12, 1, New_Board).
+	% drop_phase(Board, 12, 12, 1, New_Board),
+	capture_phase(Board, 1, New_Board),
+	check_if_winner(New_Board, Winner),
+	format('The winner is: ~w', [Winner]).
 	
-	board_print(Board),
-	C = can_set_any(Board, 'B', Row, Col),
-	C->
-		format('Space at: Row=~d , Col=~d',[Row, Col]);
-	true.
-	
-	
+
 drop_phase(Board, _, 0, _, Board):-!.
 drop_phase(Board, 0, _, _, Board):-!.
 drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
@@ -266,13 +263,37 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
 
 
 
-capture_phase:-true.
+capture_phase(Board, WhiteTurn, New_Board):-
+
+	check_if_winner(Board, Winner),
+	(
+		Winner \= 'O' -> New_Board = Board
+	);
+	
+	board_print(Board),nl,nl,
+	
+	(
+		WhiteTurn==1,
+		piece_move(Board, 'W', B1),
+		capture_phase(B1, 0, New_Board)
+	);
+	
+	WhiteTurn==0,
+	piece_move(Board, 'B', B2),
+	capture_phase(B2, 1, New_Board).
+
+	
 
 /*
 
-	global whiteTurn
-	whiteTurn = True
-	
+
+board_print(Board),
+C = can_set_any(Board, 'B', Row, Col),
+C->
+	format('Space at: Row=~d , Col=~d',[Row, Col]);
+true.
+
+
 	while (not check_if_winner()):
 	
 		board_print()
@@ -355,7 +376,8 @@ ask_pos(Str, Color, Row-Col):-
 	write(Str),
 	read_until_between(0, 4, Row),
 	get_char(_),
-	read_until_between(0, 5, Col).
+	read_number(Col).
+	% read_until_between(0, 5, Col).
 	%format('\nThe values given were:\nrow=~d\ncol=~d\n',[Row, Col]).
 	
 capture_piece(Board, Color, New_Board):-
@@ -500,6 +522,7 @@ detect_match_lines([H|T], N, Ret, Color):-
 	detect_match_lines(T, N1, Ret, Color).
 
 
+/*
 teste:-
 	
 	Board = [['O','O','O','W','B'],
@@ -513,7 +536,7 @@ teste:-
 	format('\nHit at: C=~d , R=~d\n', [RetC, RetR]),
 	write('HitC with: '), write(ColorC), nl,
 	write('HitR with: '), write(ColorR), nl.
-
+*/
 
 
 
