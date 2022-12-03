@@ -469,59 +469,50 @@ rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
 
 
 
-detect_match(Board, RetC-RetR):- 
-	detect_match_cols(Board, 0, RetC),
+detect_match(Board, RetC-RetR, ColorC-ColorR):- 
+	detect_match_lines(Board, 0, RetC, ColorC),
 	transpose(Board, BoardT),
-	detect_match_rows(BoardT, 0, RetR).
+	detect_match_lines(BoardT, 0, RetR, ColorR).
 
-detect_match_line([]):-!.
-detect_match_line([[C,_]|T]):-
+detect_match_line([], 'O'):-!.
+detect_match_line([[C,V]|T], Color):-
+	
+	(
+		(C == 3,V =='O')-> Color = 'O'
+	); 
+	
+	(
+		(C == 3,V \='O')-> Color = V
+	);
+	
 	C \= 3,
-	detect_match_line(T).
+	detect_match_line(T, Color).
 	
-detect_match_cols([], _, -1):-!.
-detect_match_cols([H|T], N, Ret):-
-	
-	rle(H, L),
-	\+ detect_match_line(L)->
-		write('match found at col: '), 
-		write(N),nl, Ret = N;
-
-	N1 is N+1,
-	detect_match_cols(T, N1, Ret).
-	
-	
-detect_match_rows([], _, -1):-!.
-detect_match_rows([H|T], N, Ret):-
+detect_match_lines([], _, -1, 'O'):-!.
+detect_match_lines([H|T], N, Ret, Color):-
 	
 	rle(H, L),
-	\+ detect_match_line(L)->
-		write('match found at row: '), 
-		write(N),nl, Ret = N;
+	detect_match_line(L, Color1),
+	Color1 \= 'O'->
+		Color = Color1, Ret = N;
 
 	N1 is N+1,
-	detect_match_rows(T, N1, Ret).
-	
+	detect_match_lines(T, N1, Ret, Color).
+
 
 teste:-
 	
-	Board = [['B','B','B','W','B'],
+	Board = [['O','O','O','W','B'],
 			 ['O','B','O','B','O'],
 			 ['W','W','B','O','W'],
-			 ['B','W','O','W','O'],
-			 ['W','W','B','O','B'],
+			 ['B','O','O','O','O'],
+			 ['W','O','W','O','B'],
 			 ['O','B','W','B','W']],
 			 
-	detect_match(Board, RetC-RetR),
-	format('\nHit at: C=~d , R=~d\n', [RetC, RetR]).
-
-
-
-/*
-rle([a,a,a,b,b,a,c,c,a,c],X).
-X = [[3,a],[2,b],[1,a],[2,c],[1,a],[c,1]]
-*/
-
+	detect_match(Board, RetC-RetR, ColorC-ColorR),
+	format('\nHit at: C=~d , R=~d\n', [RetC, RetR]),
+	write('HitC with: '), write(ColorC), nl,
+	write('HitR with: '), write(ColorR), nl.
 
 
 
