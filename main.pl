@@ -207,9 +207,9 @@ choose_move(2, GameState, Moves, Move):-
 	 ['O','O','O','O','O']].
 */
 	 
-whiteTurn = true. 
-whiteCount = 12.
-blackCount = 12.	 
+% whiteTurn = true. 
+% whiteCount = 12.
+% blackCount = 12.	 
 
 
 % nb_setval(name, value) and nb_getval(name, value).
@@ -456,41 +456,23 @@ can_set_any(Board, Color, Row, Col):-
 	check_cross(Board, Row, Col, Color),!.
 
 
+rle([], []):-!.
+rle([X], [[X,1]]):-!.
 
-group([], []):-!.
-group([H|T], Ret):- 
-	group_([H], H, T, Ret).
-
-group_(Acc, C, [], Ret):- reverse(Acc, Ret), !.	
-group_(Acc, C, [H | T], Ret):-
-
-	H == C ->
-		append([H], Acc, Acc1),
-		group_(Acc1, C, T, Ret);
-		
-	group_([H], H, T, Ret1),
-	reverse(Acc, Acc2),
-	insert_elem(0, Ret1, Acc2, Ret).
-
-		
-	
-
-% group[1,2,2,3,3,3,4,1,1] 	
-	
-/*
-group [] = []
-group (x:xs) = group_loop [x] x xs
-  where
-  group_loop acc c [] = [reverse acc]
-  group_loop acc c (y:ys) 
-   | y == c    = group_loop (y:acc) c ys
-   | otherwise = reverse acc : group_loop [y] y ys
-*/	
+rle([X|XT], [[Count, X]|RestEncoded]) :-
+    rle(XT, [[SubCount, X]|RestEncoded]),
+    succ(SubCount, Count),!.
+    
+rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
+    rle(XT, [[SubCount, Y]|RestEncoded]),
+    X \= Y,!.
 
 % detect_match
 
 
 /*
+
+    
 def detect_match():
 
 	i = 0
