@@ -471,8 +471,8 @@ rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
 
 detect_match(Board, RetC-RetR):- 
 	detect_match_cols(Board, 0, RetC),
-	RetR is -1.
-	%detect_match_rows(Board, 0).
+	transpose(Board, BoardT),
+	detect_match_rows(BoardT, 0, RetR).
 
 detect_match_line([]):-!.
 detect_match_line([[C,_]|T]):-
@@ -490,6 +490,18 @@ detect_match_cols([H|T], N, Ret):-
 	N1 is N+1,
 	detect_match_cols(T, N1, Ret).
 	
+	
+detect_match_rows([], _, -1):-!.
+detect_match_rows([H|T], N, Ret):-
+	
+	rle(H, L),
+	\+ detect_match_line(L)->
+		write('match found at row: '), 
+		write(N),nl, Ret = N;
+
+	N1 is N+1,
+	detect_match_rows(T, N1, Ret).
+	
 
 teste:-
 	
@@ -497,7 +509,7 @@ teste:-
 			 ['O','B','O','B','O'],
 			 ['W','W','B','O','W'],
 			 ['B','W','O','W','O'],
-			 ['W','O','B','O','B'],
+			 ['W','W','B','O','B'],
 			 ['O','B','W','B','W']],
 			 
 	detect_match(Board, RetC-RetR),
