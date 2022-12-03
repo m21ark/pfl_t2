@@ -230,12 +230,12 @@ main:-
 
 play:-
 
-	Board = [['B','W','B','W','B'],
-			 ['O','B','O','B','O'],
-			 ['W','O','W','O','W'],
-			 ['B','W','O','W','O'],
-			 ['W','O','B','O','B'],
-			 ['O','B','W','B','W']],
+	Board = [['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','W','W','O','O'],
+			 ['O','O','O','W','O'],
+			 ['O','O','O','O','O'],
+			 ['O','B','B','O','B']],
 
 	% drop_phase(Board, 12, 12, 1, New_Board),
 	capture_phase(Board, 1, New_Board),
@@ -274,13 +274,56 @@ capture_phase(Board, WhiteTurn, New_Board):-
 	
 	(
 		WhiteTurn==1,
-		piece_move(Board, 'W', B1),
-		capture_phase(B1, 0, New_Board)
+		capture_phase_white(Board, New_Board)
 	);
 	
 	WhiteTurn==0,
-	piece_move(Board, 'B', B2),
-	capture_phase(B2, 1, New_Board).
+	capture_phase_black(Board, New_Board).
+
+
+capture_phase_black(Board, New_Board):-
+
+	piece_move(Board, 'B', B1),
+	detect_match(B1, RetC-RetR, ColorC-ColorR),
+	nl,board_print(B1),nl,nl,
+	
+	(
+		RetC >= 0,
+		format('Black match at Row=~d\n\n',[RetC]),
+		capture_piece(B1, 'B', B2),
+		capture_phase(B2, 1, New_Board)
+	);
+	
+	(
+		RetR >= 0,
+		format('Black match at Col=~d\n\n',[RetC]),
+		capture_piece(B1, 'B', B2),
+		capture_phase(B2, 1, New_Board)
+	);
+	
+	true.
+	
+capture_phase_white(Board, New_Board):-
+
+	piece_move(Board, 'W', B1),
+	detect_match(B1, RetC-RetR, ColorC-ColorR),
+	nl,board_print(B1),nl,nl,
+	
+	(
+		RetC >= 0,
+		format('White match at Row=~d\n\n',[RetC]),
+		capture_piece(B1, 'W', B2),
+		capture_phase(B2, 0, New_Board)
+	);
+	
+	(
+		RetR >= 0,
+		format('White match at Col=~d\n\n',[RetC]),
+		capture_piece(B1, 'W', B2),
+		capture_phase(B2, 0, New_Board)
+	);
+	
+	true.
 
 	
 
@@ -293,39 +336,22 @@ C->
 	format('Space at: Row=~d , Col=~d',[Row, Col]);
 true.
 
-
-	while (not check_if_winner()):
 	
+	if(detect_match()):
+		
 		board_print()
-
+		
 		while True:
-			
-			if(whiteTurn):
-				res = whiteMove()
-			else:
-				res = blackMove()
-
-			if(res):
+		
+			pos = input(f'\nWhich {"Black" if whiteTurn else "White"} 	piece to take > ')
+			col = int(pos[0]) 
+			row = int(pos[2])
+			if(capture_piece(row, col)):
 				break
 			else:
-				print("Invalid move!")
-
-	
-		if(detect_match()):
-			
-			board_print()
-			
-			while True:
-			
-				pos = input(f'\nWhich {"Black" if whiteTurn else "White"} piece to take > ')
-				col = int(pos[0]) 
-				row = int(pos[2])
-				if(capture_piece(row, col)):
-					break
-				else:
-					print("Invalid capture!")
-			
-		whiteTurn = not whiteTurn
+				print("Invalid capture!")
+		
+	whiteTurn = not whiteTurn
 */
 	
 
@@ -522,21 +548,6 @@ detect_match_lines([H|T], N, Ret, Color):-
 	detect_match_lines(T, N1, Ret, Color).
 
 
-/*
-teste:-
-	
-	Board = [['O','O','O','W','B'],
-			 ['O','B','O','B','O'],
-			 ['W','W','B','O','W'],
-			 ['B','O','O','O','O'],
-			 ['W','O','W','O','B'],
-			 ['O','B','W','B','W']],
-			 
-	detect_match(Board, RetC-RetR, ColorC-ColorR),
-	format('\nHit at: C=~d , R=~d\n', [RetC, RetR]),
-	write('HitC with: '), write(ColorC), nl,
-	write('HitR with: '), write(ColorR), nl.
-*/
 
 
 
