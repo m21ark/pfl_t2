@@ -457,7 +457,7 @@ can_set_any(Board, Color, Row, Col):-
 
 
 rle([], []):-!.
-rle([X], [[X,1]]):-!.
+rle([X], [[1,X]]):-!.
 
 rle([X|XT], [[Count, X]|RestEncoded]) :-
     rle(XT, [[SubCount, X]|RestEncoded]),
@@ -467,43 +467,61 @@ rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
     rle(XT, [[SubCount, Y]|RestEncoded]),
     X \= Y,!.
 
-% detect_match
+
+
+detect_match(Board):- 
+	detect_match_cols(Board, 0).
+	%detect_match_rows(Board, 0).
+
+detect_match_line([]):-!.
+detect_match_line([[C,V]|T]):-
+	C \= 3,
+	detect_match_line(T).
+	
+detect_match_cols([], _):-!.
+detect_match_cols([H|T], N):-
+	
+	rle(H, L),
+	\+ detect_match_line(L)->
+		write('match found at col: '), write(N),nl;
+
+	N1 is N+1,
+	detect_match_cols(T, N1).
+	
+
+teste:-
+	
+	Board = [['B','O','B','W','B'],
+			 ['O','B','O','B','O'],
+			 ['W','W','B','O','W'],
+			 ['B','W','W','W','O'],
+			 ['W','O','B','O','B'],
+			 ['O','B','W','B','W']],
+			 
+	detect_match(Board).
+
 
 
 /*
-
-    
-def detect_match():
-
-	i = 0
-	for col in board:
-		s = "".join(col)
-		if (s.find('WWW') != -1):
-			print(f"White match in row {i}!")
-			print(s)
-			return True
-		elif (s.find('BBB') != -1):
-			print(f"Black match in row {i}!")
-			print(s)
-			return True
-		i+=1
-		
-	transp = transpose()
-	
-	i = 0
-	for col in transp:
-		s = "".join(col)
-		if (s.find('WWW') != -1):
-			print(f"White match in col {i}!")
-			print(s)
-			return True
-		elif (s.find('BBB') != -1):
-			print(f"Black match in col {i}!")
-			print(s)
-			return True
-		i+=1
-	
+rle([a,a,a,b,b,a,c,c,a,c],X).
+X = [[3,a],[2,b],[1,a],[2,c],[1,a],[c,1]]
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
