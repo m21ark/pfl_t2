@@ -240,6 +240,7 @@ play:-
 	% drop_phase(Board, 12, 12, 1, New_Board),
 	capture_phase(Board, 1, New_Board),
 	check_if_winner(New_Board, Winner),
+	board_print(New_Board),
 	format('The winner is: ~w', [Winner]).
 	
 
@@ -288,6 +289,8 @@ capture_phase_black(Board, New_Board):-
 	nl,board_print(B1),nl,nl,
 	
 	(
+		var(RetC)->write('here_1'),capture_phase(B1, 1, New_Board);
+		nonvar(RetC),
 		RetC >= 0,
 		format('Black match at Row=~d\n\n',[RetC]),
 		capture_piece(B1, 'B', B2),
@@ -295,13 +298,16 @@ capture_phase_black(Board, New_Board):-
 	);
 	
 	(
-		RetR >= 0,
+		var(RetR)->write('here_2'),capture_phase(B1, 1, New_Board);
+		nonvar(RetR),
+		(RetR) >= 0,
 		format('Black match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1, New_Board)
 	);
 	
-	true.
+	write('You shouldnt come here...2').
+	
 	
 capture_phase_white(Board, New_Board):-
 
@@ -310,6 +316,8 @@ capture_phase_white(Board, New_Board):-
 	nl,board_print(B1),nl,nl,
 	
 	(
+		var(RetC)->write('here_3'),capture_phase(B1, 0, New_Board);
+		nonvar(RetC),
 		RetC >= 0,
 		format('White match at Row=~d\n\n',[RetC]),
 		capture_piece(B1, 'W', B2),
@@ -317,44 +325,15 @@ capture_phase_white(Board, New_Board):-
 	);
 	
 	(
-		RetR >= 0,
+		var(RetR)->write('here_4'),capture_phase(B1, 0, New_Board);
+		nonvar(RetR),
+		(RetR) >= 0,
 		format('White match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0, New_Board)
 	);
 	
-	true.
-
-	
-
-/*
-
-
-board_print(Board),
-C = can_set_any(Board, 'B', Row, Col),
-C->
-	format('Space at: Row=~d , Col=~d',[Row, Col]);
-true.
-
-	
-	if(detect_match()):
-		
-		board_print()
-		
-		while True:
-		
-			pos = input(f'\nWhich {"Black" if whiteTurn else "White"} 	piece to take > ')
-			col = int(pos[0]) 
-			row = int(pos[2])
-			if(capture_piece(row, col)):
-				break
-			else:
-				print("Invalid capture!")
-		
-	whiteTurn = not whiteTurn
-*/
-	
-
+	write('You shouldnt come here...1').
 
 
 % ====================== BOARD PRINT ======================
