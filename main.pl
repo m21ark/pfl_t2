@@ -267,6 +267,45 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
 
 
 capture_phase:-true.
+
+/*
+
+	global whiteTurn
+	whiteTurn = True
+	
+	while (not check_if_winner()):
+	
+		board_print()
+
+		while True:
+			
+			if(whiteTurn):
+				res = whiteMove()
+			else:
+				res = blackMove()
+
+			if(res):
+				break
+			else:
+				print("Invalid move!")
+
+	
+		if(detect_match()):
+			
+			board_print()
+			
+			while True:
+			
+				pos = input(f'\nWhich {"Black" if whiteTurn else "White"} piece to take > ')
+				col = int(pos[0]) 
+				row = int(pos[2])
+				if(capture_piece(row, col)):
+					break
+				else:
+					print("Invalid capture!")
+			
+		whiteTurn = not whiteTurn
+*/
 	
 
 
@@ -304,8 +343,6 @@ set_piece(Board, Row, Col, Color, New_Board):-
 	list_replace(Row_, Row, Color, New_Row),
 	list_replace(Board, Col ,New_Row ,New_Board).
 
-% TO-DO FUNCS:	
-	% def detect_match()
 
 printColorTag(Color):-
 	Color == 'W'->
@@ -417,6 +454,75 @@ check_cross(Board, Row, Col, Color):-
 
 can_set_any(Board, Color, Row, Col):-
 	check_cross(Board, Row, Col, Color),!.
+
+
+
+group([], []):-!.
+group([H|T], Ret):- 
+	group_([H], H, T, Ret).
+
+group_(Acc, C, [], Ret):- reverse(Acc, Ret), !.	
+group_(Acc, C, [H | T], Ret):-
+
+	H == C ->
+		append([H], Acc, Acc1),
+		group_(Acc1, C, T, Ret);
+		
+	group_([H], H, T, Ret1),
+	reverse(Acc, Acc2),
+	insert_elem(0, Ret1, Acc2, Ret).
+
+		
+	
+
+% group[1,2,2,3,3,3,4,1,1] 	
+	
+/*
+group [] = []
+group (x:xs) = group_loop [x] x xs
+  where
+  group_loop acc c [] = [reverse acc]
+  group_loop acc c (y:ys) 
+   | y == c    = group_loop (y:acc) c ys
+   | otherwise = reverse acc : group_loop [y] y ys
+*/	
+
+% detect_match
+
+
+/*
+def detect_match():
+
+	i = 0
+	for col in board:
+		s = "".join(col)
+		if (s.find('WWW') != -1):
+			print(f"White match in row {i}!")
+			print(s)
+			return True
+		elif (s.find('BBB') != -1):
+			print(f"Black match in row {i}!")
+			print(s)
+			return True
+		i+=1
+		
+	transp = transpose()
+	
+	i = 0
+	for col in transp:
+		s = "".join(col)
+		if (s.find('WWW') != -1):
+			print(f"White match in col {i}!")
+			print(s)
+			return True
+		elif (s.find('BBB') != -1):
+			print(f"Black match in col {i}!")
+			print(s)
+			return True
+		i+=1
+	
+*/
+
 
 
 
