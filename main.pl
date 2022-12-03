@@ -1,4 +1,4 @@
-:- use_module(library(lists)).
+% :- use_module(library(lists)).
 % :- use_module(library(apply)).
 
 
@@ -47,14 +47,14 @@ countElem(L, E, Count):-countElem_(L, E, 0, Count).
 
 
 insert_elem(0, [H|T], E, Ret):- append([E,H], T, Ret), !.
-insert_elem(I, [], E, Ret):- Ret = [E],!.
+insert_elem(_, [], E, Ret):- Ret = [E],!.
 insert_elem(I, [H|T], E, Ret):-
 	I > 0, 
 	I1 is I-1,
 	insert_elem(I1, T, E, L),
 	append([H], L, Ret).
   
-delete_elem(0, [H|T], Ret):- append([], T, Ret), !.
+delete_elem(0, [_|T], Ret):- append([], T, Ret), !.
 delete_elem(I, [H|T], Ret):-
 	I > 0, 
 	I1 is I-1,
@@ -469,36 +469,39 @@ rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
 
 
 
-detect_match(Board):- 
-	detect_match_cols(Board, 0).
+detect_match(Board, RetC-RetR):- 
+	detect_match_cols(Board, 0, RetC),
+	RetR is -1.
 	%detect_match_rows(Board, 0).
 
 detect_match_line([]):-!.
-detect_match_line([[C,V]|T]):-
+detect_match_line([[C,_]|T]):-
 	C \= 3,
 	detect_match_line(T).
 	
-detect_match_cols([], _):-!.
-detect_match_cols([H|T], N):-
+detect_match_cols([], _, -1):-!.
+detect_match_cols([H|T], N, Ret):-
 	
 	rle(H, L),
 	\+ detect_match_line(L)->
-		write('match found at col: '), write(N),nl;
+		write('match found at col: '), 
+		write(N),nl, Ret = N;
 
 	N1 is N+1,
-	detect_match_cols(T, N1).
+	detect_match_cols(T, N1, Ret).
 	
 
 teste:-
 	
-	Board = [['B','O','B','W','B'],
+	Board = [['B','B','B','W','B'],
 			 ['O','B','O','B','O'],
 			 ['W','W','B','O','W'],
-			 ['B','W','W','W','O'],
+			 ['B','W','O','W','O'],
 			 ['W','O','B','O','B'],
 			 ['O','B','W','B','W']],
 			 
-	detect_match(Board).
+	detect_match(Board, RetC-RetR),
+	format('\nHit at: C=~d , R=~d\n', [RetC, RetR]).
 
 
 
