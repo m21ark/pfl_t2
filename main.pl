@@ -1,6 +1,7 @@
-% :- use_module(library(lists)).
-% :- use_module(library(apply)).
-
+:- use_module(library(lists)).
+:- use_module(library(apply)).
+:- use_module(library(between)).
+:- use_module(library(clpfd)).
 
 % ======================= USEFUL FUNCS =======================
 
@@ -16,7 +17,16 @@ for_loop_(N, Func):-
 	call(Func),
 	fail.
 	
+flatten([], []).
+flatten([H|T], Flat) :-
+	isList(H), !,
+	flatten(H, NewH),
+	flatten(T, NewT),
+	append(NewH, NewT, Flat).
+flatten([H|T], [H|Flat]) :-
+	flatten(T, Flat).
 	
+
 % ======================= LIST STUFF =======================
 
 transpose([], []).
