@@ -25,7 +25,9 @@ flatten([H|T], Flat) :-
 	append(NewH, NewT, Flat).
 flatten([H|T], [H|Flat]) :-
 	flatten(T, Flat).
-	
+
+succ(X, Y):- Y is X+1.
+
 
 % ======================= LIST STUFF =======================
 
@@ -236,16 +238,21 @@ main:-
 
 	nl, write('End of program.').
 	
-
+% TODO... a especificação do stor pede um argumento size a passar nesta função
+initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
+	Board = [['O','O','O','O','O'],
+			['O','O','O','W','O'],
+			['O','W','W','O','O'],
+			['O','O','O','W','O'],
+			['O','O','O','B','O'],
+			['O','B','B','O','B']],
+	WhiteTurn = 1,
+	WhiteCount = 12,
+	BlackCount = 12.
 
 play:-
 
-	Board = [['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','W','W','O','O'],
-			 ['O','O','O','W','O'],
-			 ['O','O','O','O','O'],
-			 ['O','B','B','O','B']],
+	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
 	% drop_phase(Board, 12, 12, 1, New_Board),
 	capture_phase(Board, 1, New_Board),
@@ -297,9 +304,8 @@ capture_phase_black(Board, New_Board):-
 	piece_move(Board, 'B', B1),
 	detect_match(B1, RetC-RetR, ColorC-ColorR),
 	nl,board_print(B1),nl,nl,
-	
 	(
-		var(RetC)->write('here_1'),capture_phase(B1, 1, New_Board);
+	(
 		nonvar(RetC),
 		RetC >= 0,
 		format('Black match at Row=~d\n\n',[RetC]),
@@ -308,12 +314,14 @@ capture_phase_black(Board, New_Board):-
 	);
 	
 	(
-		var(RetR)->write('here_2'),capture_phase(B1, 1, New_Board);
 		nonvar(RetR),
 		(RetR) >= 0,
 		format('Black match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1, New_Board)
+	);
+	
+	capture_phase(B1, 1, New_Board)
 	);
 	
 	write('You shouldnt come here...2').
@@ -324,9 +332,8 @@ capture_phase_white(Board, New_Board):-
 	piece_move(Board, 'W', B1),
 	detect_match(B1, RetC-RetR, ColorC-ColorR),
 	nl,board_print(B1),nl,nl,
-	
 	(
-		var(RetC)->write('here_3'),capture_phase(B1, 0, New_Board);
+	(
 		nonvar(RetC),
 		RetC >= 0,
 		format('White match at Row=~d\n\n',[RetC]),
@@ -335,12 +342,14 @@ capture_phase_white(Board, New_Board):-
 	);
 	
 	(
-		var(RetR)->write('here_4'),capture_phase(B1, 0, New_Board);
 		nonvar(RetR),
 		(RetR) >= 0,
 		format('White match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0, New_Board)
+	);
+
+	capture_phase(B1, 0, New_Board)
 	);
 	
 	write('You shouldnt come here...1').
