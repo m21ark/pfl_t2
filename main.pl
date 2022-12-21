@@ -231,6 +231,7 @@ choose_move(2, GameState, Moves, Move):-
 % nb_setval(name, value) and nb_getval(name, value).
 
 main:-
+	repeat,
 	game_menu_show,
 	read_until_between(1,3, OPT),
 	
@@ -240,7 +241,7 @@ main:-
 		3: write('option 3')
 	]),
 
-	nl, write('End of program.').
+	nl, write('End of program.'), fail.
 	
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
@@ -258,11 +259,11 @@ play:-
 
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
-	% drop_phase(Board, 12, 12, 1, New_Board),
+	%drop_phase(Board, 12, 12, 1, New_Board),
 	capture_phase(Board, 1, New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
-	format('The winner is: ~w', [Winner]).
+	format('The winner is: ~w', [Winner]), ! .
 	
 
 drop_phase(Board, _, 0, _, Board):-!.
@@ -305,7 +306,7 @@ capture_phase(Board, WhiteTurn, New_Board):-
 
 % MUITO POUCO EFICIENTE .... falta ainda saber como ver a linha/coluna pois só conseguimos saber de um
 match_(BoardBefore, C, Col-Row, RC-RR) :-
-	detect_match(BoardBefore, RC-RR, CC-CR),
+	detect_match(BoardBefore, RC-RR, CC-CR, Col-Row),
 	(
 		CC == C;
 		CR == C
@@ -335,7 +336,7 @@ capture_phase_black(Board, New_Board):-
 	(
 		nonvar(RetC),
 		RetC >= 0,
-		format('Black match at Row=~d\n\n',[RetC]),
+		format('Black match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1, New_Board)
 	);
@@ -343,7 +344,7 @@ capture_phase_black(Board, New_Board):-
 	(
 		nonvar(RetR),
 		(RetR) >= 0,
-		format('Black match at Col=~d\n\n',[RetC]),
+		format('Black match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1, New_Board)
 	);
@@ -363,7 +364,7 @@ capture_phase_white(Board, New_Board):-
 	(
 		nonvar(RetC),
 		RetC >= 0,
-		format('White match at Row=~d\n\n',[RetC]),
+		format('White match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0, New_Board)
 	);
@@ -371,7 +372,7 @@ capture_phase_white(Board, New_Board):-
 	(
 		nonvar(RetR),
 		(RetR) >= 0,
-		format('White match at Col=~d\n\n',[RetC]),
+		format('White match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0, New_Board)
 	);
@@ -542,10 +543,22 @@ rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
 
 
 
-detect_match(Board, RetC-RetR, ColorC-ColorR):- 
-	detect_match_lines(Board, 0, RetC, ColorC),
+detect_match(Board, RetC-RetR, ColorC-ColorR, Col-Row):- 
+	nth0(Row, Board, RRow),
+	rle(RRow, L),
+	detect_match_line(L, ColorC),
+	(
+	ColorC \= 'O' -> RetR is Row;
+	RetR is -1
+	),
 	transpose(Board, BoardT),
-	detect_match_lines(BoardT, 0, RetR, ColorR).
+	nth0(Col, BoardT, RCol),
+	rle(RCol, L2),
+	detect_match_line(L2, ColorR),
+	(
+	ColorR \= 'O' -> RetC is Col;
+	RetC is -1
+	).
 
 detect_match_line([], 'O'):-!.
 detect_match_line([[C,V]|T], Color):-
@@ -560,34 +573,4 @@ detect_match_line([[C,V]|T], Color):-
 	
 	C \= 3,
 	detect_match_line(T, Color).
-	
-detect_match_lines([], _, -1, 'O'):-!.
-detect_match_lines([H|T], N, Ret, Color):-
-	
-	rle(H, L),
-	detect_match_line(L, Color1),
-	Color1 \= 'O'->
-		Color = Color1, Ret = N;
-
-	N1 is N+1,
-	detect_match_lines(T, N1, Ret, Color).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
