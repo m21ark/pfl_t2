@@ -246,11 +246,11 @@ main:-
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 	Board = [['O','O','O','O','O'],
-			['O','O','O','W','O'],
-			['O','W','W','O','O'],
-			['O','O','O','W','O'],
-			['O','O','O','B','O'],
-			['O','B','B','O','B']],
+			['O','O','O','O','O'],
+			['O','O','O','O','O'],
+			['O','O','O','O','O'],
+			['O','O','O','O','O'],
+			['O','O','O','O','O']],
 	WhiteTurn = 1,
 	WhiteCount = 12,
 	BlackCount = 12.
@@ -259,7 +259,7 @@ play:-
 
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
-	%drop_phase(Board, 12, 12, 1, New_Board),
+	drop_phase(Board, 12, 12, 1, New_Board),
 	capture_phase(Board, 1, New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
@@ -392,7 +392,7 @@ board_print(Board):-
 	write('\n '), 
 	board_print_(Board, -1), 
 	print_n('-', 14),
-	write('\n 0  1  2  3  4\n').
+	write('\n a  b  c  d  e\n').
 
 board_print_([], _):-!.
 board_print_([H|T], N):- 
@@ -445,10 +445,9 @@ capture_piece(Board, Color, New_Board):-
 	Piece \= 'O', Piece \= Color,
 	set_piece(Board, Row, Col, 'O', New_Board).
 	
-	
 piece_drop(Board, Color, New_Board):-
 	ask_pos('Drop piece at ', Color, Row-Col),
-	
+	check_cross(Board, Row, Col, Color),
 	% call check_cross
 	% check if Pos is empty
 	% white/blackCount-- 
