@@ -33,6 +33,8 @@ diff([], [], []).
 diff([H1|T1], [H2|T2], [H1|Diff]) :- H1 \= H2, diff(T1, T2, Diff).
 diff([H1|T1], [H2|T2], Diff) :- H1 = H2, diff(T1, T2, Diff).
 
+abs(X, Y):- X >= 0, Y is X.
+
 % ======================= LIST STUFF =======================
 
 transpose([], []).
@@ -237,7 +239,7 @@ main:-
 	
 	switch(OPT, [
 		1: play,
-		2: write('option 2'),
+		2: h_vs_pc,
 		3: write('option 3')
 	]),
 
@@ -246,20 +248,23 @@ main:-
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 	Board = [['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
+			 ['O','W','O','O','O'],
+			 ['O','W','O','O','O'],
+			 ['O','W','O','O','O'],
+			 ['O','O','B','B','B'],
 			 ['O','O','O','O','O']],
 	WhiteTurn = 1,
 	WhiteCount = 12,
 	BlackCount = 12.
 
+h_vs_pc :- !.
+
+
 play:-
 
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
-	drop_phase(Board, 12, 12, 1, New_Board),
+	%drop_phase(Board, 12, 12, 1, New_Board),
 	capture_phase(Board, 1, New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
@@ -448,9 +453,6 @@ capture_piece(Board, Color, New_Board):-
 piece_drop(Board, Color, New_Board):-
 	ask_pos('Drop piece at ', Color, Row-Col),
 	check_cross(Board, Row, Col, Color),
-	% call check_cross
-	% check if Pos is empty
-	% white/blackCount-- 
 	set_piece(Board, Row, Col, Color, New_Board).
 	
 
@@ -475,7 +477,13 @@ piece_move(Board, Color, New_Board, NewCol-NewRow):-
 	ask_pos('Move to ', Color, NewRow-NewCol),
 	get_piece(Board, NewRow, NewCol, NPos),
 	NPos == 'O',
-	set_piece(NB, NewRow, NewCol, Color, New_Board).
+	set_piece(NB, NewRow, NewCol, Color, New_Board), 
+
+	% VALIDATING THE MOVE ... probaly change to member of valid moves
+	Cdiff is NewCol - CurCol, Rdiff is NewRow - CurRow,
+	abs(Cdiff, Cabs), abs(Rdiff, Rabs),
+	Cabs =< 1, Rabs =< 1,
+	Cabs \= Rabs.
 
 
 
@@ -501,31 +509,31 @@ check_cross(Board, Row, Col, Color):-
 	(
 	get_piece(Board, Row, Col, Pos),
 	Pos == 'O'
-	),
+	), !,
 	(
 	Col1 is Col-1,
 	Col1 >= 0->
 		get_piece(Board, Row, Col1, Pos1),
 		Pos1 \= Color;
 	true
-	),
+	), !,
 	(
 	Col2 is Col+1,
-	Col2 =< 5->
+	Col2 =< 4->
 		get_piece(Board, Row, Col2, Pos2),
 		Pos2 \= Color;
 	true
-	),
+	), !,
 	(
 	Row1 is Row-1,
 	Row1 >= 0->
 		get_piece(Board, Row1, Col, Pos3),
 		Pos3 \= Color;
 	true
-	),
+	), !,
 	(
 	Row2 is Row+1,
-	Row2 =< 4->
+	Row2 =< 5->
 		get_piece(Board, Row2, Col, Pos4),
 		Pos4 \= Color;
 	true
@@ -575,4 +583,19 @@ detect_match_line([[C,V]|T], Color):-
 	);
 
 	detect_match_line(T, Color).
+
+
+move(Board, CC-CR/NC-NR, Color, NewBoard) :-
+	get_piece(Board, CR, CC, CurPos),
+	CurPos == Color,
+	set_piece(Board, CR, CC, 'O', NB),
+	get_piece(Board, NR, NC, NPos),
+	NPos == 'O',
+	set_piece(NB, NR, NC, Color, NewBoard),
+	Cdiff is NC - CC, Rdiff is NR - CR,
+	abs(Cdiff, Cabs), abs(Rdiff, Rabs),
+	Cabs =< 1, Rabs =< 1, Cabs \= Rabs.
+
+valid_moves(GameState, Color ,Moves):-
+	findall(Move, move(GameState, Move, Color, NewState), Moves).
 
