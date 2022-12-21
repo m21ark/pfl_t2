@@ -246,11 +246,11 @@ main:-
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 	Board = [['O','O','O','O','O'],
-			['O','O','O','O','O'],
-			['O','O','O','O','O'],
-			['O','O','O','O','O'],
-			['O','O','O','O','O'],
-			['O','O','O','O','O']],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O']],
 	WhiteTurn = 1,
 	WhiteCount = 12,
 	BlackCount = 12.
@@ -568,15 +568,11 @@ detect_match(Board, RetC-RetR, ColorC-ColorR, Col-Row):-
 
 detect_match_line([], 'O'):-!.
 detect_match_line([[C,V]|T], Color):-
-	
 	(
-		(C == 3,V =='O')-> Color = 'O'
-	); 
-	
-	(
-		(C == 3,V \='O')-> Color = V
+		!, % green cut to improve performance .. or is it not ??
+		C == 3-> Color = V;
+		Color == 'O'
 	);
-	
-	C \= 3,
+
 	detect_match_line(T, Color).
 
