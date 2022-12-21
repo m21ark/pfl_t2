@@ -307,6 +307,8 @@ capture_phase(Board, WhiteTurn, New_Board):-
 % MUITO POUCO EFICIENTE .... falta ainda saber como ver a linha/coluna pois só conseguimos saber de um
 match_(BoardBefore, C, Col-Row, RC-RR) :-
 	detect_match(BoardBefore, RC-RR, CC-CR, Col-Row),
+	write(CC-CR), nl,
+	write(Col-Row),
 	(
 		CC == C;
 		CR == C
@@ -321,6 +323,7 @@ match_(BoardBefore, C, Col-Row, RC-RR) :-
 			Row >= RR,
 			Row =< REnd
 	);
+
 	RC is -1,
 	RR is -1.
 	
@@ -329,8 +332,8 @@ match_(BoardBefore, C, Col-Row, RC-RR) :-
 
 capture_phase_black(Board, New_Board):-
 
-	piece_move(Board, 'B', B1, NewRow-NewCol),
-	match_(B1, 'B', NewRow-NewCol, RetC-RetR),
+	piece_move(Board, 'B', B1, NewCol-NewRow),
+	match_(B1, 'B', NewCol-NewRow, RetC-RetR),
 	nl,board_print(B1),nl,nl,
 	(
 	(
@@ -357,8 +360,8 @@ capture_phase_black(Board, New_Board):-
 	
 capture_phase_white(Board, New_Board):-
 
-	piece_move(Board, 'W', B1, NewRow-NewCol),
-	match_(B1, 'W', NewRow-NewCol, RetC-RetR),
+	piece_move(Board, 'W', B1, NewCol-NewRow),
+	match_(B1, 'W', NewCol-NewRow, RetC-RetR),
 	nl,board_print(B1),nl,nl,
 	(
 	(
@@ -408,13 +411,13 @@ board_print_([H|T], N):-
 % ====================== BOARD LOGIC ======================
 
 get_piece(Board, Row, Col, Piece):-
-	nth0(Col, Board, Row_),
-	nth0(Row, Row_, Piece).
+	nth0(Row, Board, Row_),
+	nth0(Col, Row_, Piece).
 
 set_piece(Board, Row, Col, Color, New_Board):-
-	nth0(Col, Board , Row_),
-	list_replace(Row_, Row, Color, New_Row),
-	list_replace(Board, Col ,New_Row ,New_Board).
+	nth0(Row, Board , Row_),
+	list_replace(Row_, Col, Color, New_Row),
+	list_replace(Board, Row ,New_Row ,New_Board).
 
 
 printColorTag(Color):-
@@ -422,15 +425,19 @@ printColorTag(Color):-
 	write('White: ');
 	write('Black: ').
 
-% ask_pos('Position desired ', Pos).	
-ask_pos(Str, Color, Row-Col):-
+ask_pos(Str, Color, Row-Col) :-
 	printColorTag(Color),
 	write(Str),
-	read_until_between(0, 4, Row),
-	get_char(_),
-	read_number(Col).
-	% read_until_between(0, 5, Col).
-	%format('\nThe values given were:\nrow=~d\ncol=~d\n',[Row, Col]).
+	!, repeat, 
+	read_string(L),
+	length(L, Len),
+	nth0(0, L, C),
+	nth0(1, L, R),
+	Len == 2,
+	Col is C - 97,
+	Row is R - 48,
+	Row >= 0, Row =< 5,
+	Col >= 0, Col =< 4,true.
 	
 capture_piece(Board, Color, New_Board):-
 	ask_pos('Take piece at ', Color, Row-Col),
@@ -459,7 +466,7 @@ swap_turn(Bool, New_Bool):-
 	New_Bool = 1.
 	
 	
-piece_move(Board, Color, New_Board, NewRow-NewCol):-
+piece_move(Board, Color, New_Board, NewCol-NewRow):-
 
 	ask_pos('Move from ', Color, CurRow-CurCol),
 	get_piece(Board, CurRow, CurCol, CurPos),
