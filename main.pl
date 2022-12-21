@@ -29,6 +29,10 @@ flatten([H|T], [H|Flat]) :-
 succ(X, Y):- Y is X+1.
 
 
+diff([], [], []).
+diff([H1|T1], [H2|T2], [H1|Diff]) :- H1 \= H2, diff(T1, T2, Diff).
+diff([H1|T1], [H2|T2], Diff) :- H1 = H2, diff(T1, T2, Diff).
+
 % ======================= LIST STUFF =======================
 
 transpose([], []).
@@ -299,10 +303,33 @@ capture_phase(Board, WhiteTurn, New_Board):-
 	capture_phase_black(Board, New_Board).
 
 
+% MUITO POUCO EFICIENTE .... falta ainda saber como ver a linha/coluna pois só conseguimos saber de um
+match_(BoardBefore, C, Col-Row, RC-RR) :-
+	detect_match(BoardBefore, RC-RR, CC-CR),
+	(
+		CC == C;
+		CR == C
+	),
+	(
+		RC \= -1 -> 
+			REnd is RC + 2,
+			Col >= RC,
+			Col =< REnd
+		;
+			REnd is RR + 2,
+			Row >= RR,
+			Row =< REnd
+	);
+	RC is -1,
+	RR is -1.
+	
+	
+
+
 capture_phase_black(Board, New_Board):-
 
-	piece_move(Board, 'B', B1),
-	detect_match(B1, RetC-RetR, ColorC-ColorR),
+	piece_move(Board, 'B', B1, NewRow-NewCol),
+	match_(B1, 'B', NewRow-NewCol, RetC-RetR),
 	nl,board_print(B1),nl,nl,
 	(
 	(
@@ -329,8 +356,8 @@ capture_phase_black(Board, New_Board):-
 	
 capture_phase_white(Board, New_Board):-
 
-	piece_move(Board, 'W', B1),
-	detect_match(B1, RetC-RetR, ColorC-ColorR),
+	piece_move(Board, 'W', B1, NewRow-NewCol),
+	match_(B1, 'W', NewRow-NewCol, RetC-RetR),
 	nl,board_print(B1),nl,nl,
 	(
 	(
@@ -431,7 +458,7 @@ swap_turn(Bool, New_Bool):-
 	New_Bool = 1.
 	
 	
-piece_move(Board, Color, New_Board):-
+piece_move(Board, Color, New_Board, NewRow-NewCol):-
 
 	ask_pos('Move from ', Color, CurRow-CurCol),
 	get_piece(Board, CurRow, CurCol, CurPos),
