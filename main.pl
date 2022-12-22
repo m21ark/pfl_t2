@@ -34,6 +34,8 @@ diff([H1|T1], [H2|T2], [H1|Diff]) :- H1 \= H2, diff(T1, T2, Diff).
 diff([H1|T1], [H2|T2], Diff) :- H1 = H2, diff(T1, T2, Diff).
 
 abs(X, Y):- X >= 0, Y is X.
+abs(X, Y):- X < 0, Y is -X.
+
 
 % ======================= LIST STUFF =======================
 
@@ -238,8 +240,8 @@ main:-
 	read_until_between(1,3, OPT),
 	
 	switch(OPT, [
-		1: play,
-		2: h_vs_pc,
+		1: play(human-human),
+		2: play(human-computer),
 		3: write('option 3')
 	]),
 
@@ -257,10 +259,37 @@ initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 	WhiteCount = 12,
 	BlackCount = 12.
 
-h_vs_pc :- !.
+player(human).
+player(computer).
+
+choose_move(GameState, Player, Level, Move) :-
+	(
+		Level == 1 -> 
+			valid_moves(GameState, Moves),
+			random_select(Move, Moves, _Rest);
+		true
+		%Level == 2 ->
+		%	valid_moves(GameState, Moves),
+		%	setof(Value-Mv, NewState^( member(Mv, Moves),
+		%	move(GameState, Mv, NewState),
+		%	evaluate_board(NewState, Value) ), [_V-Move|_])
+	).
 
 
-play:-
+play(human-computer) :-
+	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
+	random_member(Player, ['W','B']),
+
+	%Player == 'W' -> capture_phase_white(Board, New_Board);
+
+
+	%drop_phase(Board, 12, 12, 1, New_Board),
+	capture_phase(Board, 1, New_Board),
+	check_if_winner(New_Board, Winner),
+	board_print(New_Board),
+	format('The winner is: ~w', [Winner]), ! .
+
+play(human-human):-
 
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
@@ -290,23 +319,20 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
 
 
 
-
+% TODO ... make this a failure driven loop
 capture_phase(Board, WhiteTurn, New_Board):-
-
 	check_if_winner(Board, Winner),
+	(
 	(
 		Winner \= 'O' -> New_Board = Board
 	);
-	
-	board_print(Board),nl,nl,
-	
 	(
-		WhiteTurn==1,
-		capture_phase_white(Board, New_Board)
-	);
-	
-	WhiteTurn==0,
-	capture_phase_black(Board, New_Board).
+	board_print(Board),nl,nl,
+	(
+		WhiteTurn==1 -> (capture_phase_white(Board, New_Board1));
+		capture_phase_black(Board, New_Board1)
+	)
+	)).
 
 
 % MUITO POUCO EFICIENTE .... falta ainda saber como ver a linha/coluna pois só conseguimos saber de um
@@ -356,11 +382,8 @@ capture_phase_black(Board, New_Board):-
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1, New_Board)
 	);
-	
-	capture_phase(B1, 1, New_Board)
-	);
-	
-	write('You shouldnt come here...2').
+		capture_phase(B1, 1, New_Board)
+	).
 	
 	
 capture_phase_white(Board, New_Board):-
@@ -384,11 +407,8 @@ capture_phase_white(Board, New_Board):-
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0, New_Board)
 	);
-
-	capture_phase(B1, 0, New_Board)
-	);
-	
-	write('You shouldnt come here...1').
+		capture_phase(B1, 0, New_Board)
+	).
 
 
 % ====================== BOARD PRINT ======================
@@ -594,6 +614,7 @@ move(Board, CC-CR/NC-NR, Color, NewBoard) :-
 	set_piece(NB, NR, NC, Color, NewBoard),
 	Cdiff is NC - CC, Rdiff is NR - CR,
 	abs(Cdiff, Cabs), abs(Rdiff, Rabs),
+	write(Cabs), write(Rabs), nl,
 	Cabs =< 1, Rabs =< 1, Cabs \= Rabs.
 
 valid_moves(GameState, Color ,Moves):-
