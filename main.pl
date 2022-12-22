@@ -302,16 +302,20 @@ play(human-human):-
 	format('The winner is: ~w', [Winner]), ! .
 	
 
+decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
+	WhiteTurn == 1 -> NW is WhiteCount-1, NB is BlackCount;
+	NW is WhiteCount, NB is BlackCount-1.
+
 drop_phase(Board, _, 0, _, Board):-!.
 drop_phase(Board, 0, _, _, Board):-!.
 drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
-
 	Cplayer == computer -> % maybe fazer uma função com este pedaço de código
 		get_color_from_player(WhiteTurn, Color),
-		choose_move(Board, Color-drop, 1, Move), 
-		move(Board, Move, Color-drop, New_Board1), 
+		choose_move(Board, Color-drop, 1, Move),
+		move(Board, Move, Color-drop, New_Board1),
 		next_turn(WhiteTurn, NewT),
-		capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board);
+		decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
+		drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
 
 	board_print(Board),
 	format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
@@ -547,7 +551,7 @@ check_cross(Board, Row, Col, Color):-
 	(
 	get_piece(Board, Row, Col, Pos),
 	Pos == 'O'
-	), !,
+	), !, 
 	(
 	Col1 is Col-1,
 	Col1 >= 0->
@@ -635,9 +639,11 @@ move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 		abs(Cdiff, Cabs), abs(Rdiff, Rabs),
 		Cabs =< 1, Rabs =< 1, Cabs \= Rabs;
 	check_cross(Board, NR, NC, Color),
-	set_piece(Board, NR, NC, Color, New_Board).
+	set_piece(Board, NR, NC, Color, NewBoard).
 
-valid_moves(GameState, Color-Phase ,Moves):-
+valid_moves(GameState, Color-Phase, Moves):-
+	Phase == drop ->
+		findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-Phase, NB)), Moves);
 	findall(Move, move(GameState, Move, Color-Phase, NewState), Moves).
 
 
