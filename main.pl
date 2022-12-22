@@ -244,7 +244,7 @@ main:-
 	switch(OPT, [
 		1: play(human-human),
 		2: play(human-computer),
-		3: write('option 3')
+		3: play(computer-computer)
 	]),
 
 	nl, write('End of program.'), fail.
@@ -282,22 +282,12 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 	).
 
 
-play(human-computer) :- % NOTA: N ESQUECER DE MUDAR
+play(P1-P2) :- 
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
-	random_permutation([human, computer], Turns),
+	random_permutation([P1, P2], Turns),
 
 	drop_phase(Board, WhiteCount, BlackCount, 1-Turns, NB),
-	capture_phase(NB, 1-Turns, New_Board), % NOTAAAA :::: NB
-	check_if_winner(New_Board, Winner),
-	board_print(New_Board),
-	format('The winner is: ~w', [Winner]), ! .
-
-play(human-human):-
-
-	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
-
-	drop_phase(Board, WhiteCount, BlackCount, 1-[human,human], NB),
-	capture_phase(NB, 1-[human,human], New_Board),
+	capture_phase(NB, 1-Turns, New_Board), 
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -324,6 +314,8 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 				choose_move(Board, Color-drop, 1, Move),
 				move(Board, Move, Color-drop, New_Board1),
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
+				write('Computer played: '), nl,
+				board_print(New_Board1),nl,
 				drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
 	
 			board_print(Board),
@@ -351,6 +343,11 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 
 % TODO ... make this a failure driven loop
 capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
+	check_if_winner(Board, Winner),
+	(
+	(
+		Winner \= 'O' -> New_Board = Board
+	);
 	Cplayer == computer -> 
 		get_color_from_player(WhiteTurn, Color),
 		choose_move(Board, Color-capture, 1,  CC-CR/NC-NR), 
@@ -360,15 +357,15 @@ capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 			(match_(New_Board1, Color, NC-NR, RC-RR), (RC >= 0; RR >= 0) )->
 				choose_move(Board, Color-peek, 1, _-_/SC-SR),nl,
 				set_piece(New_Board1, SR, SC, 'O', New_Board2),
+				write('Computer played: '), nl,
+				board_print(New_Board1),nl,
+				write('Computer Captured: '), nl,
+				board_print(New_Board2),nl,
 				capture_phase(New_Board2, NewT-[NewP, Cplayer], New_Board);
+			write('Computer played: '), nl,
+			board_print(New_Board1),nl,
 			capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board)
 		);
-		
-	check_if_winner(Board, Winner),
-	(
-	(
-		Winner \= 'O' -> New_Board = Board
-	);
 	(
 	board_print(Board),nl,nl,
 	(
