@@ -251,12 +251,12 @@ main:-
 	
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
-	Board = [['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O']],
+	Board = [['W','O','O','O','O'],
+			 ['W','O','O','O','O'],
+			 ['O','W','O','O','O'],
+			 ['O','W','W','W','W'],
+			 ['W','B','B','O','B'],
+			 ['O','W','W','W','W']],
 	WhiteTurn = 1,
 	WhiteCount = 12,
 	BlackCount = 12.
@@ -266,12 +266,15 @@ player(computer).
 
 phase(drop).
 phase(capture).
+phase(peek).
 
 choose_move(GameState, Player-Phase, Level, Move) :-
 	(
 		Level == 1 -> 
 			valid_moves(GameState, Player-Phase, Moves),
-			random_member(Move, Moves);
+			write('Moves: '), write(Moves), nl,
+			random_member(Move, Moves),
+			write('Move: '), write(Move),nl;
 		true
 		%Level == 2 ->
 		%	valid_moves(GameState, Moves),
@@ -285,8 +288,9 @@ play(human-computer) :-
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 	random_permutation([human, computer], Turns),
 
-	drop_phase(Board, 12, 12, 1-Turns, NB),
-	capture_phase(NB, 1-Turns, New_Board),
+	% drop_phase(Board, 12, 12, 1-Turns, NB),
+
+	capture_phase(Board, 1-Turns, New_Board), % NOTAAAA :::: NB
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -306,22 +310,11 @@ decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
 	WhiteTurn == 1 -> NW is WhiteCount-1, NB is BlackCount;
 	NW is WhiteCount, NB is BlackCount-1.
 
-%  get_color_from_player(WhiteTurn, Color),
-%  valid_moves(Board, Color-drop, Pmvs),
-%  length(Pmvs, L), !,
-%  write(L), nl, 
-%  L == 0, % se não houver jogadas possíveis para o jogador atual então passa a vez
-%  next_turn(WhiteTurn, NewT),
-%  WhiteTurn == 1 -> 
-%  	drop_phase(Board, -1, BlackCount, NewT-[NewP, Cplayer], New_Board);
-%  drop_phase(Board, WhiteCount, -1, NewT-[NewP, Cplayer], New_Board);
-
 drop_phase(Board, _X, 0, _, Board):- _X == -1, !.
 drop_phase(Board, 0, _X, _, Board):- _X == -1, !.
 drop_phase(Board, 0, 0, _, Board):-!.
 drop_phase(Board, -1, -1, _, Board):-!.
 drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
-	write(WhiteCount), nl, write(BlackCount), nl,
 	get_color_from_player(WhiteTurn, Color),
 	valid_moves(Board, Color-drop, Pmvs),
 	length(Pmvs, L),
@@ -364,11 +357,17 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 	Cplayer == computer -> 
 		get_color_from_player(WhiteTurn, Color),
-		choose_move(Board, Color-Capture, 1, Move), 
-		move(Board, Move, Color-Capture, New_Board1), 
+		choose_move(Board, Color-capture, 1,  CC-CR/NC-NR), 
+		move(Board, CC-CR/NC-NR, Color-capture, New_Board1), 
 		next_turn(WhiteTurn, NewT),
-		capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board);
-	
+		(
+			(match_(New_Board1, Color, NC-NR, RC-RR), (RC >= 0; RR >= 0) )->
+				choose_move(Board, Color-peek, 1, _-_/SC-SR),nl,
+				set_piece(New_Board1, SR, SC, 'O', New_Board2),
+				capture_phase(New_Board2, NewT-[NewP, Cplayer], New_Board);
+			capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board)
+		);
+		
 	check_if_winner(Board, Winner),
 	(
 	(
@@ -672,7 +671,12 @@ move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 valid_moves(GameState, Color-Phase, Moves):-
 	Phase == drop ->
 		findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-Phase, NB)), Moves);
-	findall(Move, move(GameState, Move, Color-Phase, NewState), Moves).
+	(
+		Phase == peek ->
+			next_color(Color, NColor),
+			findall(0-0/NC-NR, get_piece(GameState, NR, NC, NColor), Moves);
+		findall(Move, move(GameState, Move, Color-Phase, NewState), Moves)
+	).
 
 
 
