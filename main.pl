@@ -2,6 +2,8 @@
 :- use_module(library(apply)).
 :- use_module(library(between)).
 :- use_module(library(clpfd)).
+:- use_module(library(random)).
+
 
 % ======================= USEFUL FUNCS =======================
 
@@ -265,8 +267,8 @@ player(computer).
 choose_move(GameState, Player, Level, Move) :-
 	(
 		Level == 1 -> 
-			valid_moves(GameState, Moves),
-			random_select(Move, Moves, _Rest);
+			valid_moves(GameState, Player, Moves),
+			random_member(Move, Moves);
 		true
 		%Level == 2 ->
 		%	valid_moves(GameState, Moves),
@@ -284,7 +286,7 @@ play(human-computer) :-
 
 
 	%drop_phase(Board, 12, 12, 1, New_Board),
-	capture_phase(Board, 1, New_Board),
+	%capture_phase(Board, 1, New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -294,7 +296,7 @@ play(human-human):-
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
 	%drop_phase(Board, 12, 12, 1, New_Board),
-	capture_phase(Board, 1, New_Board),
+	capture_phase(Board, 1-[human,computer], New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -320,7 +322,13 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
 
 
 % TODO ... make this a failure driven loop
-capture_phase(Board, WhiteTurn, New_Board):-
+capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
+	Cplayer == computer -> 
+		get_color_from_player(WhiteTurn, Color),
+		choose_move(Board, Color, 1, Move), % ESTA ESCITO A FORCA QUE O COMPUTADOR JOGA COMO PRETO ... mudar
+		move(Board, Move, Color, New_Board1), 
+		capture_phase(New_Board1, 1-[NewP, Cplayer], New_Board);
+	
 	check_if_winner(Board, Winner),
 	(
 	(
@@ -329,8 +337,8 @@ capture_phase(Board, WhiteTurn, New_Board):-
 	(
 	board_print(Board),nl,nl,
 	(
-		WhiteTurn==1 -> (capture_phase_white(Board, New_Board1));
-		capture_phase_black(Board, New_Board1)
+		WhiteTurn==1 -> (capture_phase_white(Board, [Cplayer,NewP], New_Board));
+		capture_phase_black(Board, [Cplayer,NewP], New_Board)
 	)
 	)).
 
@@ -361,18 +369,19 @@ match_(BoardBefore, C, Col-Row, RC-RR) :-
 	
 
 
-capture_phase_black(Board, New_Board):-
+capture_phase_black(Board, NewP, New_Board):-
 
 	piece_move(Board, 'B', B1, NewCol-NewRow),
 	match_(B1, 'B', NewCol-NewRow, RetC-RetR),
 	nl,board_print(B1),nl,nl,
+	reverse(NewP, NextPlayer),
 	(
 	(
 		nonvar(RetC),
 		RetC >= 0,
 		format('Black match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'B', B2),
-		capture_phase(B2, 1, New_Board)
+		capture_phase(B2, 1-NextPlayer, New_Board)
 	);
 	
 	(
@@ -380,24 +389,25 @@ capture_phase_black(Board, New_Board):-
 		(RetR) >= 0,
 		format('Black match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'B', B2),
-		capture_phase(B2, 1, New_Board)
+		capture_phase(B2, 1-NextPlayer, New_Board)
 	);
-		capture_phase(B1, 1, New_Board)
+		capture_phase(B1, 1-NextPlayer, New_Board)
 	).
 	
 	
-capture_phase_white(Board, New_Board):-
+capture_phase_white(Board, NewP, New_Board):-
 
 	piece_move(Board, 'W', B1, NewCol-NewRow),
 	match_(B1, 'W', NewCol-NewRow, RetC-RetR),
 	nl,board_print(B1),nl,nl,
+	reverse(NewP, NextPlayer),
 	(
 	(
 		nonvar(RetC),
 		RetC >= 0,
 		format('White match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'W', B2),
-		capture_phase(B2, 0, New_Board)
+		capture_phase(B2, 0-NextPlayer, New_Board)
 	);
 	
 	(
@@ -405,9 +415,9 @@ capture_phase_white(Board, New_Board):-
 		(RetR) >= 0,
 		format('White match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'W', B2),
-		capture_phase(B2, 0, New_Board)
+		capture_phase(B2, 0-NextPlayer, New_Board)
 	);
-		capture_phase(B1, 0, New_Board)
+		capture_phase(B1, 0-NextPlayer, New_Board)
 	).
 
 
@@ -614,9 +624,16 @@ move(Board, CC-CR/NC-NR, Color, NewBoard) :-
 	set_piece(NB, NR, NC, Color, NewBoard),
 	Cdiff is NC - CC, Rdiff is NR - CR,
 	abs(Cdiff, Cabs), abs(Rdiff, Rabs),
-	write(Cabs), write(Rabs), nl,
 	Cabs =< 1, Rabs =< 1, Cabs \= Rabs.
 
 valid_moves(GameState, Color ,Moves):-
 	findall(Move, move(GameState, Move, Color, NewState), Moves).
 
+
+get_color_from_player(WhiteTurn, Color):-
+	WhiteTurn == 1 -> Color = 'W';
+	Color = 'B'.
+
+next_color(Color, NewColor):-
+	Color == 'W' -> NewColor = 'B';
+	NewColor = 'W'.
