@@ -280,13 +280,12 @@ choose_move(GameState, Player, Level, Move) :-
 
 play(human-computer) :-
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
-	random_member(Player, ['W','B']),
+	random_permutation([human, computer], Turns),
+
 
 	%Player == 'W' -> capture_phase_white(Board, New_Board);
 
-
-	%drop_phase(Board, 12, 12, 1, New_Board),
-	%capture_phase(Board, 1, New_Board),
+	capture_phase(Board, 1-Turns, New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -296,7 +295,7 @@ play(human-human):-
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
 	%drop_phase(Board, 12, 12, 1, New_Board),
-	capture_phase(Board, 1-[human,computer], New_Board),
+	capture_phase(Board, 1-[human,human], New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -327,7 +326,8 @@ capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 		get_color_from_player(WhiteTurn, Color),
 		choose_move(Board, Color, 1, Move), % ESTA ESCITO A FORCA QUE O COMPUTADOR JOGA COMO PRETO ... mudar
 		move(Board, Move, Color, New_Board1), 
-		capture_phase(New_Board1, 1-[NewP, Cplayer], New_Board);
+		next_turn(WhiteTurn, NewT),
+		capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board);
 	
 	check_if_winner(Board, Winner),
 	(
@@ -630,9 +630,15 @@ valid_moves(GameState, Color ,Moves):-
 	findall(Move, move(GameState, Move, Color, NewState), Moves).
 
 
+
+
 get_color_from_player(WhiteTurn, Color):-
 	WhiteTurn == 1 -> Color = 'W';
 	Color = 'B'.
+
+next_turn(WhiteTurn, NewWhiteTurn):-
+	WhiteTurn == 1 -> NewWhiteTurn = 0;
+	NewWhiteTurn = 1.
 
 next_color(Color, NewColor):-
 	Color == 'W' -> NewColor = 'B';
