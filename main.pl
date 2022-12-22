@@ -264,10 +264,13 @@ initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 player(human).
 player(computer).
 
-choose_move(GameState, Player, Level, Move) :-
+phase(drop).
+phase(capture).
+
+choose_move(GameState, Player-Phase, Level, Move) :-
 	(
 		Level == 1 -> 
-			valid_moves(GameState, Player, Moves),
+			valid_moves(GameState, Player-Phase, Moves),
 			random_member(Move, Moves);
 		true
 		%Level == 2 ->
@@ -282,10 +285,8 @@ play(human-computer) :-
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 	random_permutation([human, computer], Turns),
 
-
-	%Player == 'W' -> capture_phase_white(Board, New_Board);
-
-	capture_phase(Board, 1-Turns, New_Board),
+	drop_phase(Board, 12, 12, 1-Turns, NB),
+	capture_phase(NB, 1-Turns, New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -294,8 +295,8 @@ play(human-human):-
 
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
-	%drop_phase(Board, 12, 12, 1, New_Board),
-	capture_phase(Board, 1-[human,human], New_Board),
+	drop_phase(Board, 12, 12, 1-[human,human], NB),
+	capture_phase(NB, 1-[human,human], New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -303,7 +304,14 @@ play(human-human):-
 
 drop_phase(Board, _, 0, _, Board):-!.
 drop_phase(Board, 0, _, _, Board):-!.
-drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
+drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
+
+	Cplayer == computer -> % maybe fazer uma função com este pedaço de código
+		get_color_from_player(WhiteTurn, Color),
+		choose_move(Board, Color-drop, 1, Move), 
+		move(Board, Move, Color-drop, New_Board1), 
+		next_turn(WhiteTurn, NewT),
+		capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board);
 
 	board_print(Board),
 	format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
@@ -312,11 +320,11 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
 		% if(whiteTurn and can_set_any('W'))
 		piece_drop(Board, 'W', Board_),
 		New_WC is WhiteCount-1,
-		drop_phase(Board_, New_WC, BlackCount, 0, New_Board);
+		drop_phase(Board_, New_WC, BlackCount, 0-[NewP, Cplayer], New_Board);
 
 	piece_drop(Board, 'B', Board_),
 	New_BC is BlackCount-1,
-	drop_phase(Board_, WhiteCount, New_BC, 1, New_Board).
+	drop_phase(Board_, WhiteCount, New_BC, 1-[NewP, Cplayer], New_Board).
 
 
 
@@ -324,8 +332,8 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn, New_Board):-
 capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 	Cplayer == computer -> 
 		get_color_from_player(WhiteTurn, Color),
-		choose_move(Board, Color, 1, Move), % ESTA ESCITO A FORCA QUE O COMPUTADOR JOGA COMO PRETO ... mudar
-		move(Board, Move, Color, New_Board1), 
+		choose_move(Board, Color-Capture, 1, Move), 
+		move(Board, Move, Color-Capture, New_Board1), 
 		next_turn(WhiteTurn, NewT),
 		capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board);
 	
@@ -615,19 +623,22 @@ detect_match_line([[C,V]|T], Color):-
 	detect_match_line(T, Color).
 
 
-move(Board, CC-CR/NC-NR, Color, NewBoard) :-
-	get_piece(Board, CR, CC, CurPos),
-	CurPos == Color,
-	set_piece(Board, CR, CC, 'O', NB),
-	get_piece(Board, NR, NC, NPos),
-	NPos == 'O',
-	set_piece(NB, NR, NC, Color, NewBoard),
-	Cdiff is NC - CC, Rdiff is NR - CR,
-	abs(Cdiff, Cabs), abs(Rdiff, Rabs),
-	Cabs =< 1, Rabs =< 1, Cabs \= Rabs.
+move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
+	Phase == capture ->
+		get_piece(Board, CR, CC, CurPos),
+		CurPos == Color,
+		set_piece(Board, CR, CC, 'O', NB),
+		get_piece(Board, NR, NC, NPos),
+		NPos == 'O',
+		set_piece(NB, NR, NC, Color, NewBoard),
+		Cdiff is NC - CC, Rdiff is NR - CR,
+		abs(Cdiff, Cabs), abs(Rdiff, Rabs),
+		Cabs =< 1, Rabs =< 1, Cabs \= Rabs;
+	check_cross(Board, NR, NC, Color),
+	set_piece(Board, NR, NC, Color, New_Board).
 
-valid_moves(GameState, Color ,Moves):-
-	findall(Move, move(GameState, Move, Color, NewState), Moves).
+valid_moves(GameState, Color-Phase ,Moves):-
+	findall(Move, move(GameState, Move, Color-Phase, NewState), Moves).
 
 
 
