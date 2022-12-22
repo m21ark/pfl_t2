@@ -3,6 +3,8 @@
 :- use_module(library(between)).
 :- use_module(library(clpfd)).
 :- use_module(library(random)).
+:- use_module(library(system)).
+
 
 
 % ======================= USEFUL FUNCS =======================
@@ -316,6 +318,8 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
 				write('Computer played: '), nl,
 				board_print(New_Board1),nl,
+				sleep(1),
+				write('\33\[2J'),
 				drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
 	
 			board_print(Board),
@@ -361,9 +365,13 @@ capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 				board_print(New_Board1),nl,
 				write('Computer Captured: '), nl,
 				board_print(New_Board2),nl,
+				sleep(1),
+				write('\33\[2J'),
 				capture_phase(New_Board2, NewT-[NewP, Cplayer], New_Board);
 			write('Computer played: '), nl,
 			board_print(New_Board1),nl,
+			sleep(1),
+			write('\33\[2J'),
 			capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board)
 		);
 	(
