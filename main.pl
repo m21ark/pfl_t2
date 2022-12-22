@@ -251,15 +251,15 @@ main:-
 	
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
-	Board = [['W','O','O','O','O'],
-			 ['W','O','O','O','O'],
-			 ['O','W','O','O','O'],
-			 ['O','W','W','W','W'],
-			 ['W','B','B','O','B'],
-			 ['O','W','W','W','W']],
+	Board = [['O','O','O','O','O'],
+			 ['O','O','B','W','O'],
+			 ['O','O','B','W','O'],
+			 ['O','O','B','W','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O']],
 	WhiteTurn = 1,
-	WhiteCount = 12,
-	BlackCount = 12.
+	WhiteCount = 1,
+	BlackCount = 1.
 
 player(human).
 player(computer).
@@ -272,9 +272,7 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 	(
 		Level == 1 -> 
 			valid_moves(GameState, Player-Phase, Moves),
-			write('Moves: '), write(Moves), nl,
 			random_member(Move, Moves),
-			write('Move: '), write(Move),nl;
 		true
 		%Level == 2 ->
 		%	valid_moves(GameState, Moves),
@@ -284,13 +282,12 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 	).
 
 
-play(human-computer) :-
+play(human-computer) :- % NOTA: N ESQUECER DE MUDAR
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 	random_permutation([human, computer], Turns),
 
-	% drop_phase(Board, 12, 12, 1-Turns, NB),
-
-	capture_phase(Board, 1-Turns, New_Board), % NOTAAAA :::: NB
+	drop_phase(Board, WhiteCount, BlackCount, 1-Turns, NB),
+	capture_phase(NB, 1-Turns, New_Board), % NOTAAAA :::: NB
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .
@@ -299,7 +296,7 @@ play(human-human):-
 
 	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
 
-	drop_phase(Board, 12, 12, 1-[human,human], NB),
+	drop_phase(Board, WhiteCount, BlackCount, 1-[human,human], NB),
 	capture_phase(NB, 1-[human,human], New_Board),
 	check_if_winner(New_Board, Winner),
 	board_print(New_Board),
@@ -321,7 +318,6 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 	next_turn(WhiteTurn, NewT), !, 
 	(
 	(
-		write(L),
 		L > 0,
 		(
 			Cplayer == computer -> % maybe fazer uma função com este pedaço de código
@@ -385,8 +381,6 @@ capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 % MUITO POUCO EFICIENTE .... falta ainda saber como ver a linha/coluna pois só conseguimos saber de um
 match_(BoardBefore, C, Col-Row, RC-RR) :-
 	detect_match(BoardBefore, RC-RR, CC-CR, Col-Row),
-	write(CC-CR), nl,
-	write(Col-Row),
 	(
 		CC == C;
 		CR == C
