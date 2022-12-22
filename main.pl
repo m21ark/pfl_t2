@@ -252,10 +252,10 @@ main:-
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 	Board = [['O','O','O','O','O'],
-			 ['O','W','O','O','O'],
-			 ['O','W','O','O','O'],
-			 ['O','W','O','O','O'],
-			 ['O','O','B','B','B'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
 			 ['O','O','O','O','O']],
 	WhiteTurn = 1,
 	WhiteCount = 12,
@@ -306,29 +306,57 @@ decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
 	WhiteTurn == 1 -> NW is WhiteCount-1, NB is BlackCount;
 	NW is WhiteCount, NB is BlackCount-1.
 
-drop_phase(Board, _, 0, _, Board):-!.
-drop_phase(Board, 0, _, _, Board):-!.
+%  get_color_from_player(WhiteTurn, Color),
+%  valid_moves(Board, Color-drop, Pmvs),
+%  length(Pmvs, L), !,
+%  write(L), nl, 
+%  L == 0, % se não houver jogadas possíveis para o jogador atual então passa a vez
+%  next_turn(WhiteTurn, NewT),
+%  WhiteTurn == 1 -> 
+%  	drop_phase(Board, -1, BlackCount, NewT-[NewP, Cplayer], New_Board);
+%  drop_phase(Board, WhiteCount, -1, NewT-[NewP, Cplayer], New_Board);
+
+drop_phase(Board, _X, 0, _, Board):- _X == -1, !.
+drop_phase(Board, 0, _X, _, Board):- _X == -1, !.
+drop_phase(Board, 0, 0, _, Board):-!.
+drop_phase(Board, -1, -1, _, Board):-!.
 drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
-	Cplayer == computer -> % maybe fazer uma função com este pedaço de código
-		get_color_from_player(WhiteTurn, Color),
-		choose_move(Board, Color-drop, 1, Move),
-		move(Board, Move, Color-drop, New_Board1),
-		next_turn(WhiteTurn, NewT),
-		decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
-		drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
-
-	board_print(Board),
-	format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+	write(WhiteCount), nl, write(BlackCount), nl,
+	get_color_from_player(WhiteTurn, Color),
+	valid_moves(Board, Color-drop, Pmvs),
+	length(Pmvs, L),
+	next_turn(WhiteTurn, NewT), !, 
+	(
+	(
+		write(L),
+		L > 0,
+		(
+			Cplayer == computer -> % maybe fazer uma função com este pedaço de código
+				choose_move(Board, Color-drop, 1, Move),
+				move(Board, Move, Color-drop, New_Board1),
+				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
+				drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
 	
-	WhiteTurn==1-> 
-		% if(whiteTurn and can_set_any('W'))
-		piece_drop(Board, 'W', Board_),
-		New_WC is WhiteCount-1,
-		drop_phase(Board_, New_WC, BlackCount, 0-[NewP, Cplayer], New_Board);
-
-	piece_drop(Board, 'B', Board_),
-	New_BC is BlackCount-1,
-	drop_phase(Board_, WhiteCount, New_BC, 1-[NewP, Cplayer], New_Board).
+			board_print(Board),
+			format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+	
+			WhiteTurn==1-> 
+				% if(whiteTurn and can_set_any('W'))
+				piece_drop(Board, 'W', Board_),
+				New_WC is WhiteCount-1,
+				drop_phase(Board_, New_WC, BlackCount, 0-[NewP, Cplayer], New_Board);
+	
+			piece_drop(Board, 'B', Board_),
+			New_BC is BlackCount-1,
+			drop_phase(Board_, WhiteCount, New_BC, 1-[NewP, Cplayer], New_Board)
+		)
+	);
+	( % se não houver jogadas possíveis para o jogador atual então passa a vez
+		WhiteTurn == 1 -> 
+			drop_phase(Board, -1, BlackCount, NewT-[NewP, Cplayer], New_Board);
+		drop_phase(Board, WhiteCount, -1, NewT-[NewP, Cplayer], New_Board)
+	)
+	).
 
 
 
