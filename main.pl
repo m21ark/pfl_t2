@@ -231,12 +231,12 @@ display_game(P1-P2-PC_Level) :-
 
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Size, Board-WhiteTurn-WhiteCount-BlackCount):-
-	Board = [['O','O','O','O','O'],
-			 ['O','O','B','W','O'],
-			 ['O','O','B','W','O'],
-			 ['O','O','B','W','O'],
+	Board = [['B','W','O','O','W'],
 			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O']],
+			 ['O','B','B','W','O'],
+			 ['O','O','W','W','B'],
+			 ['O','W','O','B','O'],
+			 ['W','B','O','B','O']],
 	WhiteTurn = 1,
 	WhiteCount = 1,
 	BlackCount = 1.
@@ -244,22 +244,16 @@ initial_state(Size, Board-WhiteTurn-WhiteCount-BlackCount):-
 
 
 choose_move(GameState, Player-Phase, Level, Move) :-
+
 	(
 		Level == 1 -> 
 			valid_moves(GameState, Player-Phase, Moves),
-			random_member(Move, Moves);
-		true
-	),
+			random_member(Move, Moves)
+	);
+
 	(
 		Level == 2 ->
-			valid_moves(GameState, Player-Phase, Moves),
-			setof(Value-Mv, NewState^(
-									member(Mv, Moves), 
-									move(GameState, Mv, Player-Phase, NewState),
-									evaluate_board(NewState, Value) 
-									), 
-							[_V-Move|_]);
-		true
+			get_best_play(GameState, Player, Move)
 	).
 
 
@@ -274,18 +268,18 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 
 test:-
 	Board = [['O','O','O','O','O'],
-			 ['B','O','O','W','O'],
-			 ['O','O','B','W','O'],
-			 ['O','O','B','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','W','O']],
+			 ['O','O','O','W','O'],
+			 ['O','B','B','W','O'],
+			 ['O','O','O','B','O'],
+			 ['O','O','O','W','O'],
+			 ['O','W','O','O','B']],
 	WhiteTurn = 1,
 	WhiteCount = 1,
 	BlackCount = 1,
 
-	Player = 'B',
+	Player = 'W',
 
-	minmax(Board, Player, BestPlay),
+	get_best_play(Board, Player, BestPlay),
 	nl,nl,nl,write('Best play is : '),nl,
 	write(BestPlay),nl,nl,nl,
 	board_print(Board),nl,nl,
@@ -306,40 +300,57 @@ minmax:
 * When all the subsequent calls returned, chose the one with the highest/lowest score, and return it.
 */
 
+get_best_play(Board,Player,BestPlay):-
+	minmax(Board,Player,BestPlay,3);
+	nl,nl,write('3 FAILED'),nl,nl,
+	minmax(Board,Player,BestPlay,5);
+	nl,nl,write('5 FAILED'),nl,nl,
+	choose_move(Board, Player-capture, 1, BestPlay).
+	%minmax(Board,Player,BestPlay,7);
+	%nl,nl,write('7 FAILED'),nl,nl.
 
-
-minmax(Board,Player,BestSucc) :-    
-	minmax(Board,Player,BestSucc,_,5),!, %tem de ser impar para cair na msm cor q começa
-	if(BestSucc=[],fail,true).
+minmax(Board,Player,BestSucc, Level) :-    
+	minmax(Board,Player,BestSucc,Value,Level),!, %level tem de ser impar para cair na msm cor q começa
+	if(Value =< 0, fail, true).
+	%if(BestSucc=[],fail,true).
 
 minmax(Board,Player,BestSucc,Value,Depth) :-  
 	valid_moves(Board, Player-capture, MoveList),
-	nl,nl,write('Movelist:'),write(MoveList),nl,
+	%nl,nl,write('Movelist:'),write(MoveList),nl,
 	executeAll(Board,Player,MoveList,BestSucc,Value,Depth). 
 
 %===============================================================================
 
 pc_move_avaliator(Board, Color, Score):-
 	detect_match2(Board, RetC-RetR, ColorC-ColorR),
-	format('Match Result (~w) = ~d ~d ~w ~w\n', [Color, RetC, RetR, ColorC,ColorR]),
+	%format('Match Result (~w) = ~d ~d ~w ~w\n', [Color, RetC, RetR, ColorC,ColorR]),
 
+	next_color(Color, EnemyColor),
 	(
 		(
-			ColorC == Color-> Score is 1000,write('score: '),write(Score)
+			ColorC == Color-> Score is 1000%,write('score: '),write(Score)
 		);
 
 		(
-			ColorR == Color-> Score is 1000,write('score: '),write(Score)
+			ColorR == Color-> Score is 1000%,write('score: '),write(Score)
+		);
+
+		(
+			ColorC == EnemyColor-> Score is -1000%,write('score: '),write(Score)
+		);
+
+		(
+			ColorR == EnemyColor-> Score is -1000%,write('score: '),write(Score)
 		)
 	);
 
-	Score = 0,
-	write('Score: '),write(Score).
+	Score = 0.
+	%write('Score: '),write(Score).
 	
 %===============================================================================
 
-executeAll(_,'W',[],_,-1000,_).
-executeAll(_,'B',[],_,-1000,_).
+executeAll(_,'W',[],_,-1000,_). %nl,nl,write('here 1'),nl,nl.
+executeAll(_,'B',[],_,-1000,_). %nl,nl,write('here 2'),nl,nl.
 
 % if depth of recursion reaches limit, value is approximated 
 executeAll(Board,'W',_,_,Score,1) :- pc_move_avaliator(Board, 'W', Score).
