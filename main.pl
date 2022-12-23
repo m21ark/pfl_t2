@@ -149,7 +149,7 @@ print_Vpadd(S, L, N):-
 	print_Vpadd(S, L, N1).
 	
 
-% ======================= MENU STUFF =======================
+% ======================= MENU DISPLAY =======================
 
 game_menu_show:- % (T, S, P, V)
 	
@@ -172,85 +172,63 @@ game_menu_show:- % (T, S, P, V)
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
 
-% ======================= Cenas do stor =======================
 
-/*
-play_game:-
-	initial_state(GameState-Player),
-	display_game(GameState-Player),
-	game_cycle(GameState-Player).
+pc_menu_level_show:-
 	
+	atom_chars('Wali Game', K), % string to list
+	length(K, L),
+	L2 is L + 2*10,
+	L3 is L2 + 2,
 	
-	
-game_cycle(GameState-Player):-
-	game_over(GameState, Winner), !,
-	congratulate(Winner).
-	
-	
-game_cycle(GameState-Player):-
-	choose_move(GameState, Player, Move),
-	move(GameState, Move, NewGameState),
-	next_player(Player, NextPlayer),
-	display_game(GameState-NextPlayer), !,
-	game_cycle(NewGameState-NextPlayer).
+	nl,print_n('*', L3), nl,
+	print_Vpadd('*', L2, 1),	
+	print_text('AI Level ', '*' ,10), nl,
+	print_Vpadd('*', L2, 1),	
+	print_n('*', L3), nl,
+	print_Vpadd('*', L2, 1),	
+	print_text(' 1) Smart Level 0      ', '*' ,3), nl,
+	print_Vpadd('*', L2, 1),	
+	print_text(' 2) Smart Level 1      ', '*' ,3), nl,
+	print_Vpadd('*', L2, 1),	
+	print_n('*', L3), nl.
 
+% ======================= GAME DISPLAY =======================
 
-choose_move(GameState, human, Move):-true.
-	% interaction to select move
-	
-	
-choose_move(GameState, computer-Level, Move):-
-	valid_moves(GameState, Moves),
-	choose_move(Level, GameState, Moves, Move).
-	
-	
-valid_moves(GameState, Moves):-
-	findall(Move, move(GameState, Move, NewState), Moves).
-	
-	
-choose_move(1, _GameState, Moves, Move):-
-	random_select(Move, Moves, _Rest).
-	
-	
-choose_move(2, GameState, Moves, Move):-
-	% evaluate_board assumes lower value is better
-	setof(Value-Mv, NewState^( member(Mv, Moves),
-	move(GameState, Mv, NewState),
-	evaluate_board(NewState, Value) ), [_V-Move|_]).
-*/
+player(human).
+player(computer).
 
+phase(drop).
+phase(capture).
+phase(peek).
 
-% ======================= MAIN GAME =======================
-
-/*
-	[['O','O','O','O','O'],
-	 ['O','O','O','O','O'],
-	 ['O','O','O','O','O'],
-	 ['O','O','O','O','O'],
-	 ['O','O','O','O','O'],
-	 ['O','O','O','O','O']].
-*/
-	 
-% whiteTurn = true. 
-% whiteCount = 12.
-% blackCount = 12.	 
-
-
-% nb_setval(name, value) and nb_getval(name, value).
-
-main:-
+play:-
 	repeat,
 	game_menu_show,
 	read_until_between(1,3, OPT),
-	
 	switch(OPT, [
-		1: play(human-human),
-		2: play(human-computer),
-		3: play(computer-computer)
+		1: display_game(human-human-0),
+		2: display_level_pc(human-computer),
+		3: display_level_pc(computer-computer)
 	]),
+	nl, write('End of game.'), nl, nl, fail.
 
-	nl, write('End of program.'), fail.
-	
+display_level_pc(P1-P2):-
+	pc_menu_level_show,
+	read_until_between(1,2, PC_Level), 
+	display_game(P1-P2-PC_Level).
+
+display_game(P1-P2-PC_Level) :- 
+	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
+	random_permutation([P1, P2], Turns),
+	drop_phase(Board, WhiteCount, BlackCount, 1-Turns, NB),
+	capture_phase(NB, 1-Turns, New_Board), 
+	check_if_winner(New_Board, Winner),
+	board_print(New_Board),
+	format('The winner is: ~w', [Winner]), ! .	
+
+
+% ======================= GAME LOGIC =======================
+
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 	Board = [['O','O','O','O','O'],
@@ -263,12 +241,7 @@ initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
 	WhiteCount = 1,
 	BlackCount = 1.
 
-player(human).
-player(computer).
 
-phase(drop).
-phase(capture).
-phase(peek).
 
 choose_move(GameState, Player-Phase, Level, Move) :-
 	(
@@ -284,15 +257,7 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 	).
 
 
-play(P1-P2) :- 
-	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
-	random_permutation([P1, P2], Turns),
 
-	drop_phase(Board, WhiteCount, BlackCount, 1-Turns, NB),
-	capture_phase(NB, 1-Turns, New_Board), 
-	check_if_winner(New_Board, Winner),
-	board_print(New_Board),
-	format('The winner is: ~w', [Winner]), ! .
 	
 
 decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
@@ -318,7 +283,7 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
 				write('Computer played: '), nl,
 				board_print(New_Board1),nl,
-				sleep(1),
+				sleep(2),
 				write('\33\[2J'),
 				drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
 	
@@ -342,6 +307,17 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 		drop_phase(Board, WhiteCount, -1, NewT-[NewP, Cplayer], New_Board)
 	)
 	).
+
+
+valid_moves(GameState, Color-Phase, Moves):-
+Phase == drop ->
+	findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-Phase, NB)), Moves);
+(
+	Phase == peek ->
+		next_color(Color, NColor),
+		findall(0-0/NC-NR, get_piece(GameState, NR, NC, NColor), Moves);
+	findall(Move, move(GameState, Move, Color-Phase, NewState), Moves)
+).
 
 
 
@@ -493,24 +469,6 @@ set_piece(Board, Row, Col, Color, New_Board):-
 	list_replace(Board, Row ,New_Row ,New_Board).
 
 
-printColorTag(Color):-
-	Color == 'W'->
-	write('White: ');
-	write('Black: ').
-
-ask_pos(Str, Color, Row-Col) :-
-	printColorTag(Color),
-	write(Str),
-	!, repeat, 
-	read_string(L),
-	length(L, Len),
-	nth0(0, L, C),
-	nth0(1, L, R),
-	Len == 2,
-	Col is C - 97,
-	Row is R - 48,
-	Row >= 0, Row =< 5,
-	Col >= 0, Col =< 4,true.
 	
 capture_piece(Board, Color, New_Board):-
 	ask_pos('Take piece at ', Color, Row-Col),
@@ -524,54 +482,7 @@ piece_drop(Board, Color, New_Board):-
 	set_piece(Board, Row, Col, Color, New_Board).
 	
 
-get_color(WhiteTurn, Color):-
-	WhiteTurn == 1 -> 
-	Color = 'W';
-	Color = 'B'.
-	
-swap_turn(Bool, New_Bool):-
-	Bool == 1 -> 
-	New_Bool = 0;
-	New_Bool = 1.
-	
-	
-piece_move(Board, Color, New_Board, NewCol-NewRow):-
-
-	ask_pos('Move from ', Color, CurRow-CurCol),
-	get_piece(Board, CurRow, CurCol, CurPos),
-	CurPos == Color,
-	set_piece(Board, CurRow, CurCol, 'O', NB),
-	
-	ask_pos('Move to ', Color, NewRow-NewCol),
-	get_piece(Board, NewRow, NewCol, NPos),
-	NPos == 'O',
-	set_piece(NB, NewRow, NewCol, Color, New_Board), 
-
-	% VALIDATING THE MOVE ... probaly change to member of valid moves
-	Cdiff is NewCol - CurCol, Rdiff is NewRow - CurRow,
-	abs(Cdiff, Cabs), abs(Rdiff, Rabs),
-	Cabs =< 1, Rabs =< 1,
-	Cabs \= Rabs.
-
-
-
-
-check_if_winner(Board, Winner):- 
-
-	(	
-	flatten(Board, L),
-	countElem(L,'W', Wnum),
-	Wnum =< 2-> Winner = 'B'
-	);
-	
-	(
-	flatten(Board, L),	
-	countElem(L,'B', Bnum),
-	Bnum =< 2-> Winner = 'W'
-	);
-	
-	Winner = 'O'.
-
+% ====================== CHECK DROP PIECE CROSS PATTERN ======================
 	
 check_cross(Board, Row, Col, Color):-
 	(
@@ -612,6 +523,8 @@ can_set_any(Board, Color, Row, Col):-
 	check_cross(Board, Row, Col, Color),!.
 
 
+% ====================== RUN LENGTH ENCODING ======================
+
 rle([], []):-!.
 rle([X], [[1,X]]):-!.
 
@@ -623,7 +536,7 @@ rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
     rle(XT, [[SubCount, Y]|RestEncoded]),
     X \= Y,!.
 
-
+% ====================== DETECT 3 MATCH ======================
 
 detect_match(Board, RetC-RetR, ColorC-ColorR, Col-Row):- 
 	nth0(Row, Board, RRow),
@@ -652,6 +565,7 @@ detect_match_line([[C,V]|T], Color):-
 
 	detect_match_line(T, Color).
 
+% ====================== PIECE MOVE ======================
 
 move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 	Phase == capture ->
@@ -667,18 +581,63 @@ move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 	check_cross(Board, NR, NC, Color),
 	set_piece(Board, NR, NC, Color, NewBoard).
 
-valid_moves(GameState, Color-Phase, Moves):-
-	Phase == drop ->
-		findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-Phase, NB)), Moves);
+
+piece_move(Board, Color, New_Board, NewCol-NewRow):-
+
+	ask_pos('Move from ', Color, CurRow-CurCol),
+	get_piece(Board, CurRow, CurCol, CurPos),
+	CurPos == Color,
+	set_piece(Board, CurRow, CurCol, 'O', NB),
+
+	ask_pos('Move to ', Color, NewRow-NewCol),
+	get_piece(Board, NewRow, NewCol, NPos),
+	NPos == 'O',
+	set_piece(NB, NewRow, NewCol, Color, New_Board), 
+
+	% VALIDATING THE MOVE ... probaly change to member of valid moves
+	Cdiff is NewCol - CurCol, Rdiff is NewRow - CurRow,
+	abs(Cdiff, Cabs), abs(Rdiff, Rabs),
+	Cabs =< 1, Rabs =< 1,
+	Cabs \= Rabs.
+
+% ====================== WINNER DETECTION ======================
+
+check_if_winner(Board, Winner):- 
+
+	(	
+	flatten(Board, L),
+	countElem(L,'W', Wnum),
+	Wnum =< 2-> Winner = 'B'
+	);
+	
 	(
-		Phase == peek ->
-			next_color(Color, NColor),
-			findall(0-0/NC-NR, get_piece(GameState, NR, NC, NColor), Moves);
-		findall(Move, move(GameState, Move, Color-Phase, NewState), Moves)
-	).
+	flatten(Board, L),	
+	countElem(L,'B', Bnum),
+	Bnum =< 2-> Winner = 'W'
+	);
+	
+	Winner = 'O'.
 
+% ====================== AUX FUNCS ======================
 
+ask_pos(Str, Color, Row-Col) :-
+	printColorTag(Color),
+	write(Str),
+	!, repeat, 
+	read_string(L),
+	length(L, Len),
+	nth0(0, L, C),
+	nth0(1, L, R),
+	Len == 2,
+	Col is C - 97,
+	Row is R - 48,
+	Row >= 0, Row =< 5,
+	Col >= 0, Col =< 4,true.
 
+printColorTag(Color):-
+	Color == 'W'->
+	write('White: ');
+	write('Black: ').
 
 get_color_from_player(WhiteTurn, Color):-
 	WhiteTurn == 1 -> Color = 'W';
@@ -691,3 +650,15 @@ next_turn(WhiteTurn, NewWhiteTurn):-
 next_color(Color, NewColor):-
 	Color == 'W' -> NewColor = 'B';
 	NewColor = 'W'.
+
+get_color(WhiteTurn, Color):-
+	WhiteTurn == 1 -> 
+	Color = 'W';
+	Color = 'B'.
+	
+swap_turn(Bool, New_Bool):-
+	Bool == 1 -> 
+	New_Bool = 0;
+	New_Bool = 1.
+	
+
