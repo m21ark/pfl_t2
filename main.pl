@@ -253,7 +253,7 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 
 	(
 		Level == 2 ->
-			get_best_play(GameState, Player, Move)
+			get_best_play(GameState, Player-Phase, Move)
 	).
 
 
@@ -279,7 +279,7 @@ test:-
 
 	Player = 'W',
 
-	get_best_play(Board, Player, BestPlay),
+	get_best_play(Board, Player-capture, BestPlay),
 	nl,nl,nl,write('Best play is : '),nl,
 	write(BestPlay),nl,nl,nl,
 	board_print(Board),nl,nl,
@@ -300,7 +300,9 @@ minmax:
 * When all the subsequent calls returned, chose the one with the highest/lowest score, and return it.
 */
 
-get_best_play(Board,Player,BestPlay):-
+% get_best_play(Board, Player-peek, BestPlay):-choose_move(Board, Player-peek, 1, BestPlay).
+
+get_best_play(Board,Player-_,BestPlay):-
 	minmax(Board,Player,BestPlay,3);
 	nl,nl,write('3 FAILED'),nl,nl,
 	minmax(Board,Player,BestPlay,5);
@@ -486,7 +488,7 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 				choose_move(Board, Color-drop, Level, Move),
 				move(Board, Move, Color-drop, New_Board1),
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
-				write('Computer played: '), nl,
+				format('Computer ~w played:\n',[Color]),
 				board_print(New_Board1),nl,
 				sleep(2),
 				write('\33\[2J'),
@@ -543,14 +545,14 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 			(match_(New_Board1, Color, NC-NR, RC-RR), (RC >= 0; RR >= 0) )->
 				choose_move(Board, Color-peek, Level, _-_/SC-SR),nl,
 				set_piece(New_Board1, SR, SC, 'O', New_Board2),
-				write('Computer played: '), nl,
+				format('Computer ~w played:\n',[Color]),
 				board_print(New_Board1),nl,
-				write('Computer Captured: '), nl,
+				format('Computer ~w Captured:\n',[Color]),
 				board_print(New_Board2),nl,
 				sleep(2),
 				write('\33\[2J'),
 				capture_phase(New_Board2, NewT-Level-[NewP, Cplayer], New_Board);
-			write('Computer played: '), nl,
+				format('Computer ~w played:\n',[Color]),
 			board_print(New_Board1),nl,
 			sleep(2),
 			write('\33\[2J'),
