@@ -218,11 +218,11 @@ display_level_pc(P1-P2):-
 	display_game(P1-P2-PC_Level).
 
 display_game(P1-P2-PC_Level) :- 
-	initial_state(Board-WhiteTurn-WhiteCount-BlackCount),
+	initial_state(6, Board-WhiteTurn-WhiteCount-BlackCount),
 	random_permutation([P1, P2], Turns),
 	drop_phase(Board, WhiteCount, BlackCount, 1-Turns, NB),
 	capture_phase(NB, 1-Turns, New_Board), 
-	check_if_winner(New_Board, Winner),
+	game_over(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .	
 
@@ -230,7 +230,7 @@ display_game(P1-P2-PC_Level) :-
 % ======================= GAME LOGIC =======================
 
 % TODO... a especificação do stor pede um argumento size a passar nesta função
-initial_state(Board-WhiteTurn-WhiteCount-BlackCount):-
+initial_state(Size, Board-WhiteTurn-WhiteCount-BlackCount):-
 	Board = [['O','O','O','O','O'],
 			 ['O','O','B','W','O'],
 			 ['O','O','B','W','O'],
@@ -288,7 +288,7 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 				drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
 	
 			board_print(Board),
-			format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+			%format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
 	
 			WhiteTurn==1-> 
 				% if(whiteTurn and can_set_any('W'))
@@ -323,7 +323,7 @@ Phase == drop ->
 
 % TODO ... make this a failure driven loop
 capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
-	check_if_winner(Board, Winner),
+	game_over(Board, Winner),
 	(
 	(
 		Winner \= 'O' -> New_Board = Board
@@ -341,12 +341,12 @@ capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 				board_print(New_Board1),nl,
 				write('Computer Captured: '), nl,
 				board_print(New_Board2),nl,
-				sleep(1),
+				sleep(2),
 				write('\33\[2J'),
 				capture_phase(New_Board2, NewT-[NewP, Cplayer], New_Board);
 			write('Computer played: '), nl,
 			board_print(New_Board1),nl,
-			sleep(1),
+			sleep(2),
 			write('\33\[2J'),
 			capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board)
 		);
@@ -602,7 +602,7 @@ piece_move(Board, Color, New_Board, NewCol-NewRow):-
 
 % ====================== WINNER DETECTION ======================
 
-check_if_winner(Board, Winner):- 
+game_over(Board, Winner):- 
 
 	(	
 	flatten(Board, L),
