@@ -186,9 +186,9 @@ pc_menu_level_show:-
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl,
 	print_Vpadd('*', L2, 1),	
-	print_text(' 1) Smart Level 0      ', '*' ,3), nl,
+	print_text(' 1) Random             ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
-	print_text(' 2) Smart Level 1      ', '*' ,3), nl,
+	print_text(' 2) Inteligent         ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
 
@@ -220,8 +220,8 @@ display_level_pc(P1-P2):-
 display_game(P1-P2-PC_Level) :- 
 	initial_state(6, Board-WhiteTurn-WhiteCount-BlackCount),
 	random_permutation([P1, P2], Turns),
-	drop_phase(Board, WhiteCount, BlackCount, 1-Turns, NB),
-	capture_phase(NB, 1-Turns, New_Board), 
+	drop_phase(Board, WhiteCount, BlackCount, 1-PC_Level-Turns, NB),
+	capture_phase(NB, 1-PC_Level-Turns, New_Board), 
 	game_over(New_Board, Winner),
 	board_print(New_Board),
 	format('The winner is: ~w', [Winner]), ! .	
@@ -247,13 +247,19 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 	(
 		Level == 1 -> 
 			valid_moves(GameState, Player-Phase, Moves),
-			random_member(Move, Moves),
+			random_member(Move, Moves);
 		true
-		%Level == 2 ->
-		%	valid_moves(GameState, Moves),
-		%	setof(Value-Mv, NewState^( member(Mv, Moves),
-		%	move(GameState, Mv, NewState),
-		%	evaluate_board(NewState, Value) ), [_V-Move|_])
+	),
+	(
+		Level == 2 ->
+			valid_moves(GameState, Player-Phase, Moves),
+			setof(Value-Mv, NewState^(
+									member(Mv, Moves), 
+									move(GameState, Mv, Player-Phase, NewState),
+									evaluate_board(NewState, Value) 
+									), 
+							[_V-Move|_]);
+		true
 	).
 
 
@@ -268,7 +274,7 @@ drop_phase(Board, _X, 0, _, Board):- _X == -1, !.
 drop_phase(Board, 0, _X, _, Board):- _X == -1, !.
 drop_phase(Board, 0, 0, _, Board):-!.
 drop_phase(Board, -1, -1, _, Board):-!.
-drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
+drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 	get_color_from_player(WhiteTurn, Color),
 	valid_moves(Board, Color-drop, Pmvs),
 	length(Pmvs, L),
@@ -278,14 +284,14 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 		L > 0,
 		(
 			Cplayer == computer -> % maybe fazer uma função com este pedaço de código
-				choose_move(Board, Color-drop, 1, Move),
+				choose_move(Board, Color-drop, Level, Move),
 				move(Board, Move, Color-drop, New_Board1),
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
 				write('Computer played: '), nl,
 				board_print(New_Board1),nl,
 				sleep(2),
 				write('\33\[2J'),
-				drop_phase(New_Board1, NewW, NewB, NewT-[NewP, Cplayer], New_Board);
+				drop_phase(New_Board1, NewW, NewB, NewT-Level-[NewP, Cplayer], New_Board);
 	
 			board_print(Board),
 			%format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
@@ -294,17 +300,17 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-[Cplayer,NewP], New_Board):-
 				% if(whiteTurn and can_set_any('W'))
 				piece_drop(Board, 'W', Board_),
 				New_WC is WhiteCount-1,
-				drop_phase(Board_, New_WC, BlackCount, 0-[NewP, Cplayer], New_Board);
+				drop_phase(Board_, New_WC, BlackCount, 0-Level-[NewP, Cplayer], New_Board);
 	
 			piece_drop(Board, 'B', Board_),
 			New_BC is BlackCount-1,
-			drop_phase(Board_, WhiteCount, New_BC, 1-[NewP, Cplayer], New_Board)
+			drop_phase(Board_, WhiteCount, New_BC, 1-Level-[NewP, Cplayer], New_Board)
 		)
 	);
 	( % se não houver jogadas possíveis para o jogador atual então passa a vez
 		WhiteTurn == 1 -> 
-			drop_phase(Board, -1, BlackCount, NewT-[NewP, Cplayer], New_Board);
-		drop_phase(Board, WhiteCount, -1, NewT-[NewP, Cplayer], New_Board)
+			drop_phase(Board, -1, BlackCount, NewT-Level-[NewP, Cplayer], New_Board);
+		drop_phase(Board, WhiteCount, -1, NewT-Level-[NewP, Cplayer], New_Board)
 	)
 	).
 
@@ -322,7 +328,7 @@ Phase == drop ->
 
 
 % TODO ... make this a failure driven loop
-capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
+capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 	game_over(Board, Winner),
 	(
 	(
@@ -330,12 +336,12 @@ capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 	);
 	Cplayer == computer -> 
 		get_color_from_player(WhiteTurn, Color),
-		choose_move(Board, Color-capture, 1,  CC-CR/NC-NR), 
+		choose_move(Board, Color-capture, Level,  CC-CR/NC-NR), 
 		move(Board, CC-CR/NC-NR, Color-capture, New_Board1), 
 		next_turn(WhiteTurn, NewT),
 		(
 			(match_(New_Board1, Color, NC-NR, RC-RR), (RC >= 0; RR >= 0) )->
-				choose_move(Board, Color-peek, 1, _-_/SC-SR),nl,
+				choose_move(Board, Color-peek, Level, _-_/SC-SR),nl,
 				set_piece(New_Board1, SR, SC, 'O', New_Board2),
 				write('Computer played: '), nl,
 				board_print(New_Board1),nl,
@@ -343,18 +349,18 @@ capture_phase(Board, WhiteTurn-[Cplayer,NewP], New_Board):-
 				board_print(New_Board2),nl,
 				sleep(2),
 				write('\33\[2J'),
-				capture_phase(New_Board2, NewT-[NewP, Cplayer], New_Board);
+				capture_phase(New_Board2, NewT-Level-[NewP, Cplayer], New_Board);
 			write('Computer played: '), nl,
 			board_print(New_Board1),nl,
 			sleep(2),
 			write('\33\[2J'),
-			capture_phase(New_Board1, NewT-[NewP, Cplayer], New_Board)
+			capture_phase(New_Board1, NewT-Level-[NewP, Cplayer], New_Board)
 		);
 	(
 	board_print(Board),nl,nl,
 	(
-		WhiteTurn==1 -> (capture_phase_white(Board, [Cplayer,NewP], New_Board));
-		capture_phase_black(Board, [Cplayer,NewP], New_Board)
+		WhiteTurn==1 -> (capture_phase_white(Board, Level, [Cplayer,NewP], New_Board));
+		capture_phase_black(Board, Level, [Cplayer,NewP], New_Board)
 	)
 	)).
 
@@ -383,7 +389,7 @@ match_(BoardBefore, C, Col-Row, RC-RR) :-
 	
 
 
-capture_phase_black(Board, NewP, New_Board):-
+capture_phase_black(Board, Level, NewP, New_Board):-
 
 	piece_move(Board, 'B', B1, NewCol-NewRow),
 	match_(B1, 'B', NewCol-NewRow, RetC-RetR),
@@ -395,7 +401,7 @@ capture_phase_black(Board, NewP, New_Board):-
 		RetC >= 0,
 		format('Black match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'B', B2),
-		capture_phase(B2, 1-NextPlayer, New_Board)
+		capture_phase(B2, 1-Level-NextPlayer, New_Board)
 	);
 	
 	(
@@ -403,13 +409,13 @@ capture_phase_black(Board, NewP, New_Board):-
 		(RetR) >= 0,
 		format('Black match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'B', B2),
-		capture_phase(B2, 1-NextPlayer, New_Board)
+		capture_phase(B2, 1-Level-NextPlayer, New_Board)
 	);
-		capture_phase(B1, 1-NextPlayer, New_Board)
+		capture_phase(B1, 1-Level-NextPlayer, New_Board)
 	).
 	
 	
-capture_phase_white(Board, NewP, New_Board):-
+capture_phase_white(Board, Level, NewP, New_Board):-
 
 	piece_move(Board, 'W', B1, NewCol-NewRow),
 	match_(B1, 'W', NewCol-NewRow, RetC-RetR),
@@ -421,7 +427,7 @@ capture_phase_white(Board, NewP, New_Board):-
 		RetC >= 0,
 		format('White match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'W', B2),
-		capture_phase(B2, 0-NextPlayer, New_Board)
+		capture_phase(B2, 0-Level-NextPlayer, New_Board)
 	);
 	
 	(
@@ -429,9 +435,9 @@ capture_phase_white(Board, NewP, New_Board):-
 		(RetR) >= 0,
 		format('White match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'W', B2),
-		capture_phase(B2, 0-NextPlayer, New_Board)
+		capture_phase(B2, 0-Level-NextPlayer, New_Board)
 	);
-		capture_phase(B1, 0-NextPlayer, New_Board)
+		capture_phase(B1, 0-Level-NextPlayer, New_Board)
 	).
 
 
