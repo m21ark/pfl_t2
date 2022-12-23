@@ -264,6 +264,193 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 
 
 
+
+
+
+
+
+
+
+
+test:-
+	Board = [['O','O','O','O','O'],
+			 ['O','B','O','O','W'],
+			 ['O','O','B','W','O'],
+			 ['O','O','B','W','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O']],
+	WhiteTurn = 1,
+	WhiteCount = 1,
+	BlackCount = 1,
+
+	minmax(Board, 'B', BestPlay),
+	nl,nl,nl,write('Best play is : '),nl,
+	write(BestPlay),nl,nl,nl,
+	board_print(Board),nl,nl,
+	move(Board, BestPlay, 'B'-capture, NewBoard),
+	nl,nl,board_print(NewBoard).
+
+%CC-CR/NC-NR
+% RESULT = -1 -1 O O
+% RESULT = -1 2 O B
+%detect_match2(Board, RetC-RetR, ColorC-ColorR),
+%format('RESULT = ~d ~d ~w ~w\n', [RetC, RetR, ColorC,ColorR]).
+
+/*
+minmax:
+* Generate all possible moves from this situation.
+* If no such move exists this situation means an ended game, and the active player loses. Return a value (1000/-1000 depending if it was the min or max players turn)
+* If possible moves exist, call minmax for the situation of the board after each move.
+* When all the subsequent calls returned, chose the one with the highest/lowest score, and return it.
+*/
+
+
+
+minmax(Board,Player,BestSucc) :-    
+	minmax(Board,Player,BestSucc,_,3),!, %tem de ser impar para cair na msm cor q começa
+	if(BestSucc=[],fail,true).
+
+minmax(Board,Player,BestSucc,Value,Depth) :-  
+	valid_moves(Board, Player-capture, MoveList),
+	nl,nl,write('Movelist:'),write(MoveList),nl,
+	executeAll(Board,Player,MoveList,BestSucc,Value,Depth). 
+
+%===============================================================================
+
+pc_move_avaliator(Board, Color, Score):-
+	detect_match2(Board, RetC-RetR, ColorC-ColorR),
+	format('Match Result (~w) = ~d ~d ~w ~w\n', [Color, RetC, RetR, ColorC,ColorR]),
+
+	(
+		(
+			ColorC == Color-> Score is 1000,write('score: '),write(Score)
+		);
+
+		(
+			ColorR == Color-> Score is 1000,write('score: '),write(Score)
+		)
+	);
+
+	Score = 0,
+	write('Score: '),write(Score).
+	
+%===============================================================================
+
+% if possible moves list is empty, current player loses:  
+executeAll(_,'W',[],_,1000,_).
+executeAll(_,'B',[],_,-1000,_).
+
+% if depth of recursion reaches limit, value is approximated 
+executeAll(Board,'W',_,_,Score,1) :- pc_move_avaliator(Board, 'W', Score).
+executeAll(Board,'B',_,_,Score,1) :- pc_move_avaliator(Board, 'B', Score).
+
+executeAll(Board,Player,[Move|MoveList],BestSucc,Value,Depth) :-  
+
+	move(Board, Move, Player-capture, NewBoard),
+	next_color(Player, NextPlayer),
+
+	D is Depth - 1, 
+	minmax(NewBoard,NextPlayer,_,Value1,D),
+	executeAll(Board,Player,MoveList,BestSucc2,Value2,Depth), 
+
+	if(BestSucc2=Move,true,true),  
+
+	if(	
+		Value1 > Value2,
+		(Value=Value1, BestSucc=Move),
+		(Value=Value2, BestSucc=BestSucc2)
+	).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+detect_match2(Board, RetC-RetR, ColorC-ColorR):- 
+	detect_match_lines2(Board, 0, RetC, ColorC),
+	transpose(Board, BoardT),
+	detect_match_lines2(BoardT, 0, RetR, ColorR).
+
+detect_match_line2([], 'O'):-!.
+detect_match_line2([[C,V]|T], Color):-
+	
+	(
+		(C == 3,V =='O')-> Color = 'O'
+	); 
+	
+	(
+		(C == 3,V \='O')-> Color = V
+	);
+	
+	C \= 3,
+	detect_match_line2(T, Color).
+	
+detect_match_lines2([], _, -1, 'O'):-!.
+detect_match_lines2([H|T], N, Ret, Color):-
+	
+	rle(H, L),
+	detect_match_line2(L, Color1),
+	Color1 \= 'O'->
+		Color = Color1, Ret = N;
+
+	N1 is N+1,
+	detect_match_lines2(T, N1, Ret, Color).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 
 decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
@@ -315,16 +502,17 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 	).
 
 
-valid_moves(GameState, Color-Phase, Moves):-
-Phase == drop ->
-	findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-Phase, NB)), Moves);
-(
-	Phase == peek ->
-		next_color(Color, NColor),
-		findall(0-0/NC-NR, get_piece(GameState, NR, NC, NColor), Moves);
-	findall(Move, move(GameState, Move, Color-Phase, NewState), Moves)
-).
+valid_moves(GameState, Color-capture, Moves):- 
+	findall(Move, move(GameState, Move, Color-capture, NewState), Moves).
 
+valid_moves(GameState, Color-drop, Moves):-
+	findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-Phase, NB)), Moves).
+
+% mexi aqui ent posso ter feito asneira :)
+valid_moves(GameState, Color-peek, Moves):-
+	next_color(Color, NColor),
+	findall(0-0/NC-NR, get_piece(GameState, NR, NC, NColor), Moves);
+	findall(Move, move(GameState, Move, Color-Phase, NewState), Moves).
 
 
 % TODO ... make this a failure driven loop
