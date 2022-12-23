@@ -274,20 +274,22 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 
 test:-
 	Board = [['O','O','O','O','O'],
-			 ['O','B','O','O','W'],
+			 ['B','O','O','W','O'],
 			 ['O','O','B','W','O'],
-			 ['O','O','B','W','O'],
+			 ['O','O','B','O','O'],
 			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O']],
+			 ['O','O','O','W','O']],
 	WhiteTurn = 1,
 	WhiteCount = 1,
 	BlackCount = 1,
 
-	minmax(Board, 'B', BestPlay),
+	Player = 'B',
+
+	minmax(Board, Player, BestPlay),
 	nl,nl,nl,write('Best play is : '),nl,
 	write(BestPlay),nl,nl,nl,
 	board_print(Board),nl,nl,
-	move(Board, BestPlay, 'B'-capture, NewBoard),
+	move(Board, BestPlay, Player-capture, NewBoard),
 	nl,nl,board_print(NewBoard).
 
 %CC-CR/NC-NR
@@ -307,7 +309,7 @@ minmax:
 
 
 minmax(Board,Player,BestSucc) :-    
-	minmax(Board,Player,BestSucc,_,3),!, %tem de ser impar para cair na msm cor q começa
+	minmax(Board,Player,BestSucc,_,5),!, %tem de ser impar para cair na msm cor q começa
 	if(BestSucc=[],fail,true).
 
 minmax(Board,Player,BestSucc,Value,Depth) :-  
@@ -336,8 +338,7 @@ pc_move_avaliator(Board, Color, Score):-
 	
 %===============================================================================
 
-% if possible moves list is empty, current player loses:  
-executeAll(_,'W',[],_,1000,_).
+executeAll(_,'W',[],_,-1000,_).
 executeAll(_,'B',[],_,-1000,_).
 
 % if depth of recursion reaches limit, value is approximated 
