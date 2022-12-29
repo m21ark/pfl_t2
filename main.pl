@@ -253,7 +253,7 @@ choose_move(GameState, Player-Phase, Level, Move) :-
 
 	(
 		Level == 2 ->
-			get_best_play(GameState, Player-Phase, Move),
+			get_best_play(GameState-Player, Player-Phase, Move),
 			write('Best play is : '),nl,
 			write(Move)
 	).
@@ -273,7 +273,7 @@ test:-
 
 	Player = 'W',
 
-	get_best_play(Board, Player-capture, BestPlay),
+	get_best_play(Board-Player, Player-capture, BestPlay),
 	nl,nl,nl,write('Best play is : '),nl,
 	write(BestPlay),nl,nl,nl,
 	board_print(Board),nl,nl,
@@ -296,26 +296,25 @@ minmax:
 
 % get_best_play(Board, Player-peek, BestPlay):-choose_move(Board, Player-peek, 1, BestPlay).
 
-get_best_play(Board,Player-Phase,BestPlay):-
+get_best_play(Board-ObjP,Player-Phase,BestPlay):-
 	 write(Phase), nl,
-	minmax(Board,Player-Phase,BestPlay,3);
-	nl,nl,write('3 FAILED'), write(Phase),nl,nl,
-	minmax(Board,Player-Phase,BestPlay,5);
+
+	minmax(Board-ObjP,Player-Phase,BestPlay,5);
 	nl,nl,write('5 FAILED'),nl,nl,
 	choose_move(Board, Player-Phase, 1, BestPlay).
 	%minmax(Board,Player,BestPlay,7);
 	%nl,nl,write('7 FAILED'),nl,nl.
 
-minmax(Board,Player-Phase,BestSucc, Level) :-    
-	minmax(Board,Player-Phase,BestSucc,Value,Level),!, %level tem de ser impar para cair na msm cor q começa
+minmax(Board-ObjP,Player-Phase,BestSucc, Level) :-    
+	minmax(Board-ObjP,Player-Phase,BestSucc,Value,Level),!, %level tem de ser impar para cair na msm cor q começa
 	write('Value:'),write(Value),nl,
 	if(Value =< 0, fail, true).
 	%if(BestSucc=[],fail,true).
 
-minmax(Board,Player-Phase,BestSucc,Value,Depth) :-  
+minmax(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-  
 	valid_moves(Board, Player-Phase, MoveList),
 	%nl,nl,write('Movelist:'),write(MoveList),nl,
-	executeAll(Board,Player-Phase,MoveList,BestSucc,Value,Depth). 
+	executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc,Value,Depth). 
 
 %===============================================================================
 
@@ -344,45 +343,45 @@ pc_move_avaliator(Board, Color-Phase, Score):- % TODO: N ESQUECER O PHASE
 
 	Score = 0.
 	%write('Score: '),write(Score).
-	
+
+pc_move_avaliator2(Board-ObjP, Color-Phase, Score, CC-CR/NC-NR):-
+
+	(match_(Board, Color, NC-NR, RC-RR),  (RC >= 0; RR >= 0))->
+		(
+		ObjP == Color, Score is 1000;
+		Score is -1000
+		)
+	;
+	Score is 0.
+
+
 %===============================================================================
 
 executeAll(_,'W'-_,[],_,-1000,_). %nl,nl,write('here 1'),nl,nl.
 executeAll(_,'B'-_,[],_,-1000,_). %nl,nl,write('here 2'),nl,nl.
 
 % if depth of recursion reaches limit, value is approximated 
-executeAll(Board,'W'-_,_,_,Score,1) :- pc_move_avaliator(Board, 'W'-_, Score).
-executeAll(Board,'B'-_,_,_,Score,1) :- pc_move_avaliator(Board, 'B'-_, Score).
+executeAll(Board-_,'W'-_,_,_,Score, 1) :-  Score is 0.
+executeAll(Board-_,'B'-_,_,_,Score, 1) :-  Score is 0.
 
-executeAll(Board,Player-Phase,[Move|MoveList],BestSucc,Value,Depth) :-  
+executeAll(Board-ObjP,Player-Phase,[CC-CR/NC-NR|MoveList],BestSucc,Value,Depth) :-  
 
-	move(Board, Move, Player-Phase, NewBoard),
+	move(Board, CC-CR/NC-NR, Player-Phase, NewBoard),
 	next_color(Player, NextPlayer),
-
+	pc_move_avaliator2(NewBoard-ObjP, Player-Phase, Score, CC-CR/NC-NR),
 	D is Depth - 1, 
-	minmax(NewBoard,NextPlayer-Phase,_,Value1,D),
-	executeAll(Board,Player-Phase,MoveList,BestSucc2,Value2,Depth), 
+	minmax(NewBoard-ObjP,NextPlayer-Phase,_,Value1,D),
+	% write(Value1),write('-'),
+	executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc2,Value2,Depth),
 
-	if(BestSucc2=Move,true,true),  
+	if(BestSucc2=CC-CR/NC-NR,true,true),  
 
+	ThisValue is Value1 + Score,
 	if(	
-		Value1 > Value2,
-		(Value=Value1, BestSucc=Move),
+		ThisValue > Value2,
+		(Value=ThisValue, BestSucc=CC-CR/NC-NR),
 		(Value=Value2, BestSucc=BestSucc2)
 	).
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -503,9 +502,8 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 				
 				capture_phase(New_Board2, NewT-Level-[NewP, Cplayer], New_Board);
 				format('Computer ~w played:\n',[Color]),
-			board_print(New_Board1),nl,
-			
-			capture_phase(New_Board1, NewT-Level-[NewP, Cplayer], New_Board)
+				board_print(New_Board1),nl,
+				capture_phase(New_Board1, NewT-Level-[NewP, Cplayer], New_Board)
 		);
 	(
 	board_print(Board),nl,nl,
