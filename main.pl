@@ -308,7 +308,7 @@ get_best_play(Board-ObjP,Player-Phase,BestPlay):-
 minmax(Board-ObjP,Player-Phase,BestSucc, Level) :-    
 	minmax(Board-ObjP,Player-Phase,BestSucc,Value,Level),!, %level tem de ser impar para cair na msm cor q começa
 	write('Value:'),write(Value),nl,
-	if(Value =< 0, fail, true).
+	if(Value =< -3000, fail, true).
 	%if(BestSucc=[],fail,true).
 
 minmax(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-  
@@ -349,7 +349,7 @@ pc_move_avaliator2(Board-ObjP, Color-Phase, Score, CC-CR/NC-NR):-
 	(match_(Board, Color, NC-NR, RC-RR),  (RC >= 0; RR >= 0))->
 		(
 		ObjP == Color, Score is 1000;
-		Score is -1000
+		Score is -1050
 		)
 	;
 	Score is 0.
@@ -357,32 +357,83 @@ pc_move_avaliator2(Board-ObjP, Color-Phase, Score, CC-CR/NC-NR):-
 
 %===============================================================================
 
-executeAll(_,'W'-_,[],_,-1000,_). %nl,nl,write('here 1'),nl,nl.
-executeAll(_,'B'-_,[],_,-1000,_). %nl,nl,write('here 2'),nl,nl.
+executeAll(_-P,'W'-_,[],_, Score,_) :- P == 'W' -> Score is -10000; Score is 10000. %nl,nl,write('here 1'),nl,nl.
+executeAll(_-P,'B'-_,[],_, Score,_) :- P == 'B' -> Score is -10000; Score is 10000. %nl,nl,write('here 2'),nl,nl.
 
 % if depth of recursion reaches limit, value is approximated 
-executeAll(Board-_,'W'-_,_,_,Score, 1) :-  Score is 0.
-executeAll(Board-_,'B'-_,_,_,Score, 1) :-  Score is 0.
+executeAll(Board-P,'W'-_,_,_,Score, 0) :-  P == 'W' -> Score is -10000; Score is 10000.
+executeAll(Board-P,'B'-_,_,_,Score, 0) :-  P == 'B' -> Score is -10000; Score is 10000.
+
+
+% executeAll([['O','O','W','O','O'],
+% 			 ['O','O','W','O','O'],
+% 			 ['O','O','O','O','O'],
+% 			 ['B','B','W','B','B'],
+% 			 ['O','O','B','O','O'],
+% 			 ['O','O','O','O','O']]-'W','W'-capture, [2-3/2-2, 2-1/2-2, 2-1/3-1], B, V, 5 ).
+
+% executeAll([['O','O','W','O','O'],
+% 			 ['O','O','O','O','O'],
+% 			 ['O','O','W','O','O'],
+% 			 ['B','B','W','O','B'],
+% 			 ['O','O','B','B','O'],
+% 			 ['O','O','O','O','O']]-'W','W'-capture, [2-0/2-1,2-2/2-1], B, V, 3 ).
 
 executeAll(Board-ObjP,Player-Phase,[CC-CR/NC-NR|MoveList],BestSucc,Value,Depth) :-  
 
-	move(Board, CC-CR/NC-NR, Player-Phase, NewBoard),
-	next_color(Player, NextPlayer),
-	pc_move_avaliator2(NewBoard-ObjP, Player-Phase, Score, CC-CR/NC-NR),
-	D is Depth - 1, 
-	minmax(NewBoard-ObjP,NextPlayer-Phase,_,Value1,D),
-	% write(Value1),write('-'),
-	executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc2,Value2,Depth),
+	move(Board, CC-CR/NC-NR, Player-Phase, NewBoard1),
+	pc_move_avaliator2(NewBoard1-ObjP, Player-Phase, Score, CC-CR/NC-NR),
+	
+	
+	if((Score > 0; Score < 0),
+		(choose_move(NewBoard1, Player-peek, 1, _-_/SC-SR), set_piece(NewBoard1, SR, SC, 'O', NewBoard)),
+		(NewBoard = NewBoard1)
+	),
 
-	if(BestSucc2=CC-CR/NC-NR,true,true),  
+	game_over(NewBoard, Winner), 
+	(
+		Winner == ObjP,
+		Value is 6000, BestSucc = CC-CR/NC-NR,!;
 
-	ThisValue is Value1 + Score,
-	if(	
-		ThisValue > Value2,
-		(Value=ThisValue, BestSucc=CC-CR/NC-NR),
-		(Value=Value2, BestSucc=BestSucc2)
+		Winner == Player,
+		Value is -6000, BestSucc = CC-CR/NC-NR,!;
+
+		next_color(Player, NextPlayer),
+		D is Depth - 1, 
+		minmax(NewBoard-ObjP,NextPlayer-Phase,_,Value1,D),
+		executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc2,Value2,Depth),
+
+		%board_print(NewBoard),nl,nl,write('Score: '),write(Score), write('Value:'), write(Value1),nl,nl,
+		if(BestSucc2=CC-CR/NC-NR,true,true),  
+		ThisValue is Value1 + Score,
+		(
+		ObjP == Player -> 
+			(
+				if(
+					ThisValue > Value2,
+					(Value=ThisValue, BestSucc=CC-CR/NC-NR),
+					(Value=Value2, BestSucc=BestSucc2)
+				)
+				
+					%write('EXIT MAIOR: '), write(Value), nl
+			);
+			(
+				if(
+					ThisValue < Value2,
+					(Value=ThisValue, BestSucc=CC-CR/NC-NR),
+					(Value=Value2, BestSucc=BestSucc2)
+				)
+				%write('EXIT MENOR: '), write(Value), nl
+			)
+		)
 	).
+	%write('EXIT BIG: '), write(Value), nl.
 
+	% if(	
+	% 	ThisValue > Value2,
+	% 	(Value=ThisValue, BestSucc=CC-CR/NC-NR),
+	% 	(Value=Value2, BestSucc=BestSucc2)
+	% ).
 
 
 detect_match2(Board, RetC-RetR, ColorC-ColorR):- 
