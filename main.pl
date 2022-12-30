@@ -231,22 +231,22 @@ display_game(P1-P2-PC_Level) :-
 
 % TODO... a especificação do stor pede um argumento size a passar nesta função
 initial_state(Size, Board-WhiteTurn-WhiteCount-BlackCount):-
-	Board = [['O','O','W','O','O'],
-			 ['O','O','W','O','O'],
+	Board = [['O','O','O','O','O'],
 			 ['O','O','O','O','O'],
-			 ['B','B','W','B','B'],
-			 ['O','O','B','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
+			 ['O','O','O','O','O'],
 			 ['O','O','O','O','O']],
 	WhiteTurn = 1,
-	WhiteCount = 0,
-	BlackCount = 0.
+	WhiteCount = 12,
+	BlackCount = 12.
 
 
 
 choose_move(GameState, Player-Phase, Level, Move) :-
 
 	(
-		(Level == 1; Phase=peek) -> 
+		(Level == 1; Phase=peek; Phase=drop) -> 
 			valid_moves(GameState, Player-Phase, Moves),
 			random_member(Move, Moves)
 	);
