@@ -246,7 +246,7 @@ initial_state(Size, Board-WhiteTurn-WhiteCount-BlackCount):-
 choose_move(GameState, Player-Phase, Level, Move) :-
 
 	(
-		Level == 1 -> 
+		(Level == 1; Phase=peek) -> 
 			valid_moves(GameState, Player-Phase, Moves),
 			random_member(Move, Moves)
 	);
@@ -297,52 +297,26 @@ minmax:
 % get_best_play(Board, Player-peek, BestPlay):-choose_move(Board, Player-peek, 1, BestPlay).
 
 get_best_play(Board-ObjP,Player-Phase,BestPlay):-
-	 write(Phase), nl,
-
+	write(Phase), nl,
+	minmax(Board-ObjP,Player-Phase,BestPlay,3);
+	nl,nl,write('Thinking a bit more for this one'),nl,nl,
 	minmax(Board-ObjP,Player-Phase,BestPlay,5);
-	nl,nl,write('5 FAILED'),nl,nl,
+	nl,nl,write('Well, I am a bad looser. Lets just throw a move out of the box.'),nl,nl,
 	choose_move(Board, Player-Phase, 1, BestPlay).
-	%minmax(Board,Player,BestPlay,7);
-	%nl,nl,write('7 FAILED'),nl,nl.
+
 
 minmax(Board-ObjP,Player-Phase,BestSucc, Level) :-    
 	minmax(Board-ObjP,Player-Phase,BestSucc,Value,Level),!, %level tem de ser impar para cair na msm cor q começa
 	write('Value:'),write(Value),nl,
-	if(Value =< -3000, fail, true).
-	%if(BestSucc=[],fail,true).
+	if(Value =< -40000, fail, true).
+
 
 minmax(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-  
 	valid_moves(Board, Player-Phase, MoveList),
-	%nl,nl,write('Movelist:'),write(MoveList),nl,
 	executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc,Value,Depth). 
 
 %===============================================================================
 
-pc_move_avaliator(Board, Color-Phase, Score):- % TODO: N ESQUECER O PHASE
-	detect_match2(Board, RetC-RetR, ColorC-ColorR),
-	%format('Match Result (~w) = ~d ~d ~w ~w\n', [Color, RetC, RetR, ColorC,ColorR]),
-
-	next_color(Color, EnemyColor),
-	(
-		(
-			ColorC == Color-> Score is 1000%,write('score: '),write(Score)
-		);
-
-		(
-			ColorR == Color-> Score is 1000%,write('score: '),write(Score)
-		);
-
-		(
-			ColorC == EnemyColor-> Score is -1000%,write('score: '),write(Score)
-		);
-
-		(
-			ColorR == EnemyColor-> Score is -1000%,write('score: '),write(Score)
-		)
-	);
-
-	Score = 0.
-	%write('Score: '),write(Score).
 
 pc_move_avaliator2(Board-ObjP, Color-Phase, Score, CC-CR/NC-NR):-
 
@@ -357,12 +331,12 @@ pc_move_avaliator2(Board-ObjP, Color-Phase, Score, CC-CR/NC-NR):-
 
 %===============================================================================
 
-executeAll(_-P,'W'-_,[],_, Score,_) :- P == 'W' -> Score is -10000; Score is 10000. %nl,nl,write('here 1'),nl,nl.
-executeAll(_-P,'B'-_,[],_, Score,_) :- P == 'B' -> Score is -10000; Score is 10000. %nl,nl,write('here 2'),nl,nl.
+executeAll(_-P,'W'-_,[],_, Score,_) :- P == 'W' -> Score is -100000; Score is 100000. %nl,nl,write('here 1'),nl,nl.
+executeAll(_-P,'B'-_,[],_, Score,_) :- P == 'B' -> Score is -100000; Score is 100000. %nl,nl,write('here 2'),nl,nl.
 
 % if depth of recursion reaches limit, value is approximated 
-executeAll(Board-P,'W'-_,_,_,Score, 0) :-  P == 'W' -> Score is -10000; Score is 10000.
-executeAll(Board-P,'B'-_,_,_,Score, 0) :-  P == 'B' -> Score is -10000; Score is 10000.
+executeAll(Board-P,'W'-_,_,_,Score, 0) :-  P == 'W' -> Score is -100000; Score is 100000.
+executeAll(Board-P,'B'-_,_,_,Score, 0) :-  P == 'B' -> Score is -100000; Score is 100000.
 
 
 % executeAll([['O','O','W','O','O'],
@@ -370,7 +344,9 @@ executeAll(Board-P,'B'-_,_,_,Score, 0) :-  P == 'B' -> Score is -10000; Score is
 % 			 ['O','O','O','O','O'],
 % 			 ['B','B','W','B','B'],
 % 			 ['O','O','B','O','O'],
-% 			 ['O','O','O','O','O']]-'W','W'-capture, [2-3/2-2, 2-1/2-2, 2-1/3-1], B, V, 5 ).
+% 			 ['O','O','O','O','O']]-'W','W'-capture, [ 2-1/2-2, 2-3/2-2], B, V, 3 ).
+
+
 
 % executeAll([['O','O','W','O','O'],
 % 			 ['O','O','O','O','O'],
@@ -393,17 +369,17 @@ executeAll(Board-ObjP,Player-Phase,[CC-CR/NC-NR|MoveList],BestSucc,Value,Depth) 
 	game_over(NewBoard, Winner), 
 	(
 		Winner == ObjP,
-		Value is 6000, BestSucc = CC-CR/NC-NR,!;
+		Value is 120000, BestSucc = CC-CR/NC-NR,!;
 
-		Winner == Player,
-		Value is -6000, BestSucc = CC-CR/NC-NR,!;
+		Winner == Player,  
+		Value is -120000, BestSucc = CC-CR/NC-NR,!;
 
 		next_color(Player, NextPlayer),
 		D is Depth - 1, 
 		minmax(NewBoard-ObjP,NextPlayer-Phase,_,Value1,D),
 		executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc2,Value2,Depth),
 
-		%board_print(NewBoard),nl,nl,write('Score: '),write(Score), write('Value:'), write(Value1),nl,nl,
+		% board_print(NewBoard),nl,nl,write('Score: '),write(Score), write('Value:'), write(Value1),nl,nl,
 		if(BestSucc2=CC-CR/NC-NR,true,true),  
 		ThisValue is Value1 + Score,
 		(
