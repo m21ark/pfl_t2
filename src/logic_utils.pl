@@ -5,6 +5,12 @@ ask_pos(Str, Color, Row-Col) :-
 	write(Str),
 	!, repeat, 
 	read_string(L),
+	(
+		nth0(0, L, Q),
+		Q == 113,
+		!, fail;
+		true
+	),
 	length(L, Len),
 	nth0(0, L, C),
 	nth0(1, L, R),

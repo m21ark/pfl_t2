@@ -91,3 +91,10 @@ rle([X|XT], [[Count, X]|RestEncoded]) :-
 rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
     rle(XT, [[SubCount, Y]|RestEncoded]),
     X \= Y,!.
+
+gen_2d_array(0, _, C, []):-!.
+gen_2d_array(N, M, C, [H|T]):- N > 0, gen_1d_array(M, C, H), N1 is N-1, gen_2d_array(N1, M, C, T).
+
+gen_1d_array(0, C, []):-!.
+gen_1d_array(N, C, [H|T]):- N > 0, H = C, N1 is N-1, gen_1d_array(N1, C, T).
+
