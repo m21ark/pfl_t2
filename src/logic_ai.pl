@@ -101,7 +101,7 @@ executeAll(Board-ObjP,Player-Phase,[CC-CR/NC-NR|MoveList],BestSucc,Value,Depth) 
 		minmax(NewBoard-ObjP,NextPlayer-Phase,_,Value1,D),
 		executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc2,Value2,Depth),
 
-		% board_print(NewBoard),nl,nl,write('Score: '),write(Score), write('Value:'), write(Value1),nl,nl,
+		% display_game(NewBoard),nl,nl,write('Score: '),write(Score), write('Value:'), write(Value1),nl,nl,
 		if(BestSucc2=CC-CR/NC-NR,true,true),  
 		ThisValue is Value1 + Score,
 		(

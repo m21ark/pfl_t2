@@ -111,35 +111,35 @@ display_level_pc(P1-P2):-
 	read_until_between(0,2, PC_Level), 
     (
         PC_Level = 0 -> !;
-        display_game(P1-P2-PC_Level)
+        set_game_state(P1-P2-PC_Level)
     ).
 
-display_game(P1-P2-PC_Level) :- 
+set_game_state(P1-P2-PC_Level) :- 
 	initial_state(6, Board-WhiteTurn-WhiteCount-BlackCount),
 	random_permutation([P1, P2], Turns),
 	drop_phase(Board, WhiteCount, BlackCount, 1-PC_Level-Turns, NB),
 	capture_phase(NB, 1-PC_Level-Turns, New_Board), 
 	game_over(New_Board, Winner),
-	board_print(New_Board),
+	display_game(New_Board),
 	format('The winner is: ~w', [Winner]), ! .	
 
 % ====================== BOARD PRINT ======================
 
-board_print(Board):- 
+display_game(Board):- 
 	write('\n '), 
-	board_print_(Board, -1), 
+	display_game_(Board, -1), 
 	print_n('-', 14),
 	write('\n a  b  c  d  e\n').
 
-board_print_([], _):-!.
-board_print_([H|T], N):- 
+display_game_([], _):-!.
+display_game_([H|T], N):- 
 	
 	\+ isList(H) -> 
 	write(H), 
 	write('  '),
-	board_print_(T,N1);
+	display_game_(T,N1);
 	
 	N1 is N+1,
-	board_print_(H,N1),
+	display_game_(H,N1),
 	write('| '),write(N1),write('\n '), 
-	board_print_(T,N1).
+	display_game_(T,N1).

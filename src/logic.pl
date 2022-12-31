@@ -41,12 +41,12 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 				move(Board, Move, Color-drop, New_Board1),
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
 				format('Computer ~w played:\n',[Color]),
-				board_print(New_Board1),nl,
+				display_game(New_Board1),nl,
 				sleep(2),
 				write('\33\[2J'),
 				drop_phase(New_Board1, NewW, NewB, NewT-Level-[NewP, Cplayer], New_Board);
 	
-			board_print(Board),
+			display_game(Board),
 			%format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
 	
 			WhiteTurn==1-> 
@@ -86,19 +86,19 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 				set_piece(New_Board1, SR, SC, 'O', New_Board2),
 				write('\33\[2J'),
 				format('Computer ~w played:\n',[Color]),
-				board_print(New_Board1),nl,
+				display_game(New_Board1),nl,
 				format('Computer ~w Captured:\n',[Color]),
-				board_print(New_Board2),nl,
+				display_game(New_Board2),nl,
 				sleep(2),
 				capture_phase(New_Board2, NewT-Level-[NewP, Cplayer], New_Board);
 				write('\33\[2J'),
 				format('Computer ~w played:\n',[Color]),
-				board_print(New_Board1),nl,
+				display_game(New_Board1),nl,
 				sleep(2),
 				capture_phase(New_Board1, NewT-Level-[NewP, Cplayer], New_Board)
 		);
 	(
-	board_print(Board),nl,nl,
+	display_game(Board),nl,nl,
 	(
 		WhiteTurn==1 -> (capture_phase_white(Board, Level, [Cplayer,NewP], New_Board));
 		capture_phase_black(Board, Level, [Cplayer,NewP], New_Board)
@@ -134,7 +134,7 @@ capture_phase_black(Board, Level, NewP, New_Board):-
 
 	piece_move(Board, 'B', B1, NewCol-NewRow),
 	match_(B1, 'B', NewCol-NewRow, RetC-RetR),
-	nl,board_print(B1),nl,nl,
+	nl,display_game(B1),nl,nl,
 	reverse(NewP, NextPlayer),
 	(
 	(
@@ -160,7 +160,7 @@ capture_phase_white(Board, Level, NewP, New_Board):-
 
 	piece_move(Board, 'W', B1, NewCol-NewRow),
 	match_(B1, 'W', NewCol-NewRow, RetC-RetR),
-	nl,board_print(B1),nl,nl,
+	nl,display_game(B1),nl,nl,
 	reverse(NewP, NextPlayer),
 	(
 	(

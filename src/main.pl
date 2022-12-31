@@ -24,7 +24,7 @@ play:-
 	read_until_between(0,3, OPT),
 	switch(OPT, [
 		0: (!),
-		1: display_game(human-human-0),
+		1: set_game_state(human-human-0),
 		2: display_level_pc(human-computer),
 		3: display_level_pc(computer-computer)
 	]),
