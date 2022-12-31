@@ -1,26 +1,10 @@
 % ======================= GAME LOGIC =======================
 
-% TODO... a especificação do stor pede um argumento size a passar nesta função
-initial_state(Size, Board-WhiteTurn-WhiteCount-BlackCount):-
-	Board = [['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O']],
+initial_state(Col-Row, Board-WhiteTurn-WhiteCount-BlackCount):-
+	gen_2d_array(Row, Col, 'O', Board),
 	WhiteTurn = 1,
 	WhiteCount = 12,
 	BlackCount = 12.
-
-
-
-%CC-CR/NC-NR
-% RESULT = -1 -1 O O
-% RESULT = -1 2 O B
-%detect_match2(Board, RetC-RetR, ColorC-ColorR),
-%format('RESULT = ~d ~d ~w ~w\n', [RetC, RetR, ColorC,ColorR]).
-
-
 
 
 drop_phase(Board, _X, 0, _, Board):- _X == -1, !.
@@ -36,10 +20,11 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 	(
 		L > 0,
 		(
-			Cplayer == computer -> % maybe fazer uma função com este pedaço de código
+			Cplayer == computer -> 
 				choose_move(Board, Color-drop, Level, Move),
 				move(Board, Move, Color-drop, New_Board1),
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
+                format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
 				format('Computer ~w played:\n',[Color]),
 				display_game(New_Board1),nl,
 				sleep(2),
@@ -47,10 +32,9 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 				drop_phase(New_Board1, NewW, NewB, NewT-Level-[NewP, Cplayer], New_Board);
 	
 			display_game(Board),
-			%format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+			format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
 	
 			WhiteTurn==1-> 
-				% if(whiteTurn and can_set_any('W'))
 				piece_drop(Board, 'W', Board_),
 				New_WC is WhiteCount-1,
 				drop_phase(Board_, New_WC, BlackCount, 0-Level-[NewP, Cplayer], New_Board);
@@ -67,8 +51,6 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 	).
 
 
-
-% TODO ... make this a failure driven loop
 capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 	game_over(Board, Winner),
 	(
@@ -106,7 +88,6 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 	)).
 
 
-% MUITO POUCO EFICIENTE .... falta ainda saber como ver a linha/coluna pois só conseguimos saber de um
 match_(BoardBefore, C, Col-Row, RC-RR) :-
 	detect_match(BoardBefore, RC-RR, CC-CR, Col-Row),
 	(

@@ -115,7 +115,7 @@ display_level_pc(P1-P2):-
     ).
 
 set_game_state(P1-P2-PC_Level) :- 
-	initial_state(6, Board-WhiteTurn-WhiteCount-BlackCount),
+	initial_state(5-6, Board-WhiteTurn-WhiteCount-BlackCount),
 	random_permutation([P1, P2], Turns),
 	drop_phase(Board, WhiteCount, BlackCount, 1-PC_Level-Turns, NB),
 	capture_phase(NB, 1-PC_Level-Turns, New_Board), 
