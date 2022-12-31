@@ -22,13 +22,6 @@ initial_state(Size, Board-WhiteTurn-WhiteCount-BlackCount):-
 
 
 
-%===============================================================================
-
-
-
-
-
-%===============================================================================
 
 drop_phase(Board, _X, 0, _, Board):- _X == -1, !.
 drop_phase(Board, 0, _X, _, Board):- _X == -1, !.
@@ -61,7 +54,6 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 				piece_drop(Board, 'W', Board_),
 				New_WC is WhiteCount-1,
 				drop_phase(Board_, New_WC, BlackCount, 0-Level-[NewP, Cplayer], New_Board);
-	
 			piece_drop(Board, 'B', Board_),
 			New_BC is BlackCount-1,
 			drop_phase(Board_, WhiteCount, New_BC, 1-Level-[NewP, Cplayer], New_Board)

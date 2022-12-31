@@ -21,10 +21,12 @@ phase(peek).
 play:-
 	repeat,
 	game_menu_show,
-	read_until_between(1,3, OPT),
+	read_until_between(0,3, OPT),
 	switch(OPT, [
+		0: (!),
 		1: display_game(human-human-0),
 		2: display_level_pc(human-computer),
 		3: display_level_pc(computer-computer)
 	]),
+	OPT = 0 -> !;
 	nl, write('End of game.'), nl, nl, fail.

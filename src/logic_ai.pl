@@ -23,8 +23,6 @@ minmax:
 * When all the subsequent calls returned, chose the one with the highest/lowest score, and return it.
 */
 
-% get_best_play(Board, Player-peek, BestPlay):-choose_move(Board, Player-peek, 1, BestPlay).
-
 get_best_play(Board-ObjP,Player-Phase,BestPlay):-
 	minmax(Board-ObjP,Player-Phase,BestPlay,3);
 	nl,nl,write('Thinking a bit more for this one'),nl,nl,

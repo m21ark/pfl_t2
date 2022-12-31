@@ -77,6 +77,8 @@ game_menu_show:- % (T, S, P, V)
 	print_text('2) Human vs PC         ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_text('3) PC vs PC            ', '*' ,3), nl,
+    print_Vpadd('*', L2, 1),	
+    print_text('0) Go Back             ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
 
@@ -97,6 +99,8 @@ pc_menu_level_show:-
 	print_text(' 1) Random             ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_text(' 2) Inteligent         ', '*' ,3), nl,
+    print_Vpadd('*', L2, 1),	
+	print_text(' 0) Quit               ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
 
@@ -104,8 +108,11 @@ pc_menu_level_show:-
 
 display_level_pc(P1-P2):-
 	pc_menu_level_show,
-	read_until_between(1,2, PC_Level), 
-	display_game(P1-P2-PC_Level).
+	read_until_between(0,2, PC_Level), 
+    (
+        PC_Level = 0 -> !;
+        display_game(P1-P2-PC_Level)
+    ).
 
 display_game(P1-P2-PC_Level) :- 
 	initial_state(6, Board-WhiteTurn-WhiteCount-BlackCount),
