@@ -32,12 +32,11 @@ get_best_play(Board-ObjP,Player-Phase,BestPlay):-
 
 
 minmax(Board-ObjP,Player-Phase,BestSucc, Level) :-    
-	minmax(Board-ObjP,Player-Phase,BestSucc,Value,Level),!, %level tem de ser impar para cair na msm cor q começa
-	write('Value:'),write(Value),nl,
+	value(Board-ObjP,Player-Phase,BestSucc,Value,Level),!, %level tem de ser impar para cair na msm cor q começa
 	if(Value =< -40000, fail, true).
 
 
-minmax(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-  
+value(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-  
 	valid_moves(Board, Player-Phase, MoveList),
 	executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc,Value,Depth). 
 
@@ -98,7 +97,7 @@ executeAll(Board-ObjP,Player-Phase,[CC-CR/NC-NR|MoveList],BestSucc,Value,Depth) 
 
 		next_color(Player, NextPlayer),
 		D is Depth - 1, 
-		minmax(NewBoard-ObjP,NextPlayer-Phase,_,Value1,D),
+		value(NewBoard-ObjP,NextPlayer-Phase,_,Value1,D),
 		executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc2,Value2,Depth),
 
 		% display_game(NewBoard),nl,nl,write('Score: '),write(Score), write('Value:'), write(Value1),nl,nl,

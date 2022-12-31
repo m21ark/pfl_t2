@@ -301,7 +301,6 @@ piece_move(Board, Color, New_Board, NewCol-NewRow):-
 % ====================== WINNER DETECTION ======================
 
 game_over(Board, Winner):- 
-
 	(	
 	flatten(Board, L),
 	countElem(L,'W', Wnum),
