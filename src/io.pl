@@ -1,3 +1,5 @@
+% This file contains the definitions of all I/O related predicates used in the program.
+
 % ======================= INPUT UTLS =======================
 
 % read_number_acc(+Acc, -Ret)/2
@@ -34,6 +36,30 @@ read_string([C | T]) :- get_code(C), read_string(T).
 % read_char(-Char)/1
 % read a char and ignore the next one (\n)
 read_char(C):-get_char(C), get_char(_).
+
+% ask_pos(+Str, +Color, -Row-Col)/3
+% ask for a position for Color player by printing Str
+% until it is a valid one, returning the Row and Col given
+ask_pos(Str, Color, Row-Col) :-
+	printColorTag(Color),
+	write(Str),
+	!, repeat, 
+	read_string(L),
+	( 	% if 'q' is pressed, pass the turn
+		nth0(0, L, Q),
+		Q == 113,
+		!, fail;
+		true
+	),
+	% Check if the input is valid
+	length(L, Len),
+	nth0(0, L, C),
+	nth0(1, L, R),
+	Len == 2,
+	Col is C - 97,
+	Row is R - 48,
+	Row >= 0, Row =< 5,
+	Col >= 0, Col =< 4,true.
 
 % ======================= PRINT UTILS =======================
 

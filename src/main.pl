@@ -12,7 +12,6 @@
 :- ensure_loaded('utils.pl').
 :- ensure_loaded('io.pl').
 :- ensure_loaded('logic.pl').
-:- ensure_loaded('logic_utils.pl').
 :- ensure_loaded('logic_ai.pl').
 
 % player(+Player)/1

@@ -24,7 +24,7 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 				choose_move(Board, Color-drop, Level, Move),
 				move(Board, Move, Color-drop, New_Board1),
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
-                format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+                format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
 				format('Computer ~w played:\n',[Color]),
 				display_game(New_Board1),nl,
 				sleep(2),
@@ -32,7 +32,7 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 				drop_phase(New_Board1, NewW, NewB, NewT-Level-[NewP, Cplayer], New_Board);
 	
 			display_game(Board),
-			format('\nStones placed: w=~d, b=~d\n',[WhiteCount, BlackCount]),
+			format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
 	
 			WhiteTurn==1-> 
 				piece_drop(Board, 'W', Board_),

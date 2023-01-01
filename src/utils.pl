@@ -98,3 +98,50 @@ gen_2d_array(N, M, C, [H|T]):- N > 0, gen_1d_array(M, C, H), N1 is N-1, gen_2d_a
 % Generates a 1D array of size N with all elements equal to C.
 gen_1d_array(0, C, []):-!.
 gen_1d_array(N, C, [H|T]):- N > 0, H = C, N1 is N-1, gen_1d_array(N1, C, T).
+
+% ====================== Game UTILS ======================
+
+% printColorTag(+Color)/1
+% Prints a color tag for the given color.
+printColorTag(Color):-
+	Color == 'W'->
+	write('White: ');
+	write('Black: ').
+
+% get_color_from_player(+WhiteTurn, -Color)/2
+% Returns the color of the player whose turn it is.
+get_color_from_player(WhiteTurn, Color):-
+	WhiteTurn == 1 -> Color = 'W';
+	Color = 'B'.
+
+% next_turn(+WhiteTurn, -NewWhiteTurn)/2
+% Returns the next player's turn.
+next_turn(WhiteTurn, NewWhiteTurn):-
+	WhiteTurn == 1 -> NewWhiteTurn = 0;
+	NewWhiteTurn = 1.
+
+% get_color(+WhiteTurn, -Color)/2
+% Returns the color of the next turn player.
+next_color(Color, NewColor):-
+	Color == 'W' -> NewColor = 'B';
+	NewColor = 'W'.
+
+% get_color(+WhiteTurn, -Color)/2
+% Returns the color of the player whose turn it is.
+get_color(WhiteTurn, Color):-
+	WhiteTurn == 1 -> 
+	Color = 'W';
+	Color = 'B'.
+	
+% swap_turn(+WhiteTurn, -NewWhiteTurn)/2
+% Swaps the player turn.	
+swap_turn(Bool, New_Bool):-
+	Bool == 1 -> 
+	New_Bool = 0;
+	New_Bool = 1.
+
+% decrement_count(+WhiteTurn, +WhiteCount, +BlackCount, -NW, -NB)/4
+% Decrements the piece count of the player whose turn it is.	
+decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
+	WhiteTurn == 1 -> NW is WhiteCount-1, NB is BlackCount;
+	NW is WhiteCount, NB is BlackCount-1.
