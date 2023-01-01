@@ -174,8 +174,6 @@ set_piece(Board, Row, Col, Color, New_Board):-
 	list_replace(Row_, Col, Color, New_Row),
 	list_replace(Board, Row ,New_Row ,New_Board).
 
-
-	
 capture_piece(Board, Color, New_Board):-
 	ask_pos('Take piece at ', Color, Row-Col),
 	get_piece(Board, Row, Col, Piece),
@@ -186,6 +184,20 @@ piece_drop(Board, Color, New_Board):-
 	ask_pos('Drop piece at ', Color, Row-Col),
 	check_cross(Board, Row, Col, Color),
 	set_piece(Board, Row, Col, Color, New_Board).
+
+move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
+	Phase == capture ->
+		get_piece(Board, CR, CC, CurPos),
+		CurPos == Color,
+		set_piece(Board, CR, CC, 'O', NB),
+		get_piece(Board, NR, NC, NPos),
+		NPos == 'O',
+		set_piece(NB, NR, NC, Color, NewBoard),
+		Cdiff is NC - CC, Rdiff is NR - CR,
+		abs(Cdiff, Cabs), abs(Rdiff, Rabs),
+		Cabs =< 1, Rabs =< 1, Cabs \= Rabs;
+	check_cross(Board, NR, NC, Color),
+	set_piece(Board, NR, NC, Color, NewBoard).
 	
 
 % ====================== CHECK DROP PIECE CROSS PATTERN ======================

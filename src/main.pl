@@ -1,3 +1,5 @@
+% This file contains the definitions of the main game predicate.
+
 % Includes all the modules
 :- use_module(library(lists)).
 :- use_module(library(apply)).

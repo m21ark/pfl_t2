@@ -1,3 +1,5 @@
+% This file contains the definitions of auxiliar predicates used in the program.
+
 % switch(+Variable, +[Value:Goal|Cases])/2
 % Variable to be tested against Value, if it matches, Goal is called, otherwise the next case is tested.
 switch(Variable, [Value:Goal|Cases]):-
