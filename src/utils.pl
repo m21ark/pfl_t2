@@ -154,3 +154,7 @@ convert_from_move_to_notation(Col-Row, S) :-
 	char_code(ColChar, Col1),
 	char_code(RowChar, Row1),
 	atom_concat(ColChar, RowChar, S).
+
+% clear/0
+clear:-
+    write('\33\[2J').

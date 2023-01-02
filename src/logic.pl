@@ -40,13 +40,13 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 				choose_move(Board, Color-drop, Level, _X-_Y/NC-NR),
 				move(Board, _X-_Y/NC-NR, Color-drop, New_Board1),
 				decrement_count(WhiteTurn, WhiteCount-BlackCount, NewW-NewB),
-				write('\33\[2J'),
+				clear,
                 format('\nStones left to place: w=~d, b=~d\n',[WhiteCount, BlackCount]),
 				convert_from_move_to_notation(NC-NR, MRep),	
 				format('Computer ~w played ~w:\n',[Color, MRep]),
 				display_game(New_Board1),nl,
 				sleep(2),
-				write('\33\[2J'),
+				clear,
 				drop_phase(New_Board1, NewW, NewB, NewT-Level-[NewP, Cplayer], New_Board);
 	
 			display_game(Board),
@@ -90,21 +90,21 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 			(match_(New_Board1, Color, NC-NR, RC-RR), (RC >= 0; RR >= 0) )->
 				choose_move(Board, Color-peek, Level, _-_/SC-SR),nl,
 				set_piece(New_Board1, SR, SC, 'O', New_Board2),
-				write('\33\[2J'),
+				clear,
 				convert_from_move_to_notation(NC-NR, MRep),
 				format('Computer ~w played ~w:\n',[Color, MRep]),
 				display_game(New_Board1),nl,
 				format('Computer ~w Captured:\n',[Color]),
 				display_game(New_Board2),nl,
 				sleep(2),
-				write('\33\[2J'),
+				clear,
 				capture_phase(New_Board2, NewT-Level-[NewP, Cplayer], New_Board);
-			write('\33\[2J'),
+			clear,
 			convert_from_move_to_notation(NC-NR, MRep),
 			format('Computer ~w played ~w:\n',[Color, MRep]),
 			display_game(New_Board1),nl,
 			sleep(2),
-			write('\33\[2J'),
+			clear,
 			capture_phase(New_Board1, NewT-Level-[NewP, Cplayer], New_Board)
 		);
 	(
