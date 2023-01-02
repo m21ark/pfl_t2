@@ -145,3 +145,10 @@ swap_turn(Bool, New_Bool):-
 decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
 	WhiteTurn == 1 -> NW is WhiteCount-1, NB is BlackCount;
 	NW is WhiteCount, NB is BlackCount-1.
+
+convert_from_move_to_notation(Col-Row, S) :-
+	Col1 is Col + 65,
+	Row1 is Row + 48,
+	char_code(ColChar, Col1),
+	char_code(RowChar, Row1),
+	atom_concat(ColChar, RowChar, S).
