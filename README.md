@@ -57,8 +57,8 @@ Another less common way to end the game is by surrounding your opponent's pieces
 
 #### Board
 
- Board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, we are able to make our program more modular.
- 'B' denotes a black piece and 'W' a white piece
+ The game board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, we are able to make our program more modular.
+'B' denotes a black piece and 'W' a white piece
 It is also worthy to note that the size of the board is sored dinamically in the following line:
 
 ```prolog
@@ -146,9 +146,21 @@ The board size is predefined to be 5x6 with 12 pieces for each player however th
 
 As the game itself requires at least 3 pieces of each color to play, it isn't adviced nor pratical to have a board smaller than 4x4.
 
-FALTA VALIDACAO DE ENTRADA
+#### Input Validation
+
+
+
+To validate user input, we have many input related predicates in the `io.pl` file.
+
+Below there's an example of input & output related to a piece move that results in a 3 match which triggers the *peek phase* prompt.
+
+![Capture Input](docs/capture.png)
+
+The validation in input occurs in two phases. The first one is presented in the `ask_pos(Str, Color, Row-Col)` function in the `io.pl` file. This function is responsible for asking the user for a position and validating it (seeing if position is inside the board). This predicate is independent from the game state and can be used in any context. The second phase depends on the phase of the game. The `piece_drop(Board, Color, New_Board)` only accepts positions that are valid to that phase, backtracking if the move is invalid (making another call to `ask_pos/3`). The same happens with the `capture_piece(Board, Color, New_Board)` and `piece_move(Board, Color, New_Board, NewCol-NewRow)` predicate.	
+
 
 ### Move execution
+
 
 As this game has 2 phases (drop & capture) and during the capture phase a move can be a simple move or a piece capture, this predicate quickly becomes complex. In the drop phase, we have to check if a dropping place isn't yet orthagonally adjecent to any piece of the current player (which requires a `check_cross/4` predicate). In the capture phase, a simple move only needs to check if it is made from a current player's piece position to an empty adjacent cell. Finally, to take an opposite player's piece, we only need to check if the board position contains a piece of the opponent.
 
@@ -269,6 +281,10 @@ get_best_play(Board-ObjP,Player-Phase,BestPlay):-
 
 ## Conclusions
 
-We admit that this game was a bit more complex than what we were initially expecting and we are under the impression it's probably one of the hardest among the proposed game set. We are happy that we managed to finish it, respecting all the rules proposed and making modular code. We got some issues with some rules implemented.For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer and to have a playable design for the game. Despite of that, we were able to solve all the issues and implement a good playable game.
+We admit that this game was a bit more complex than what we were initially expecting and we are under the impression it's probably one of the hardest among the proposed game set.
 
-A possible improvement would be to implement a better and more random evaluation function for the computer. Ours is to afraid to make mistakes and will sometimes loop endlessly when playing against other computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response. 
+With that being said, we are happy that we managed to finish it in time, respecting all the rules proposed and making the code modular. We got some issues with some of the implemented rules. For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer due to the many phases and different applicable rules in each of them. Despite all that, we were able to solve all the issues and implement a good and playable game.
+
+### Roadmap
+
+If time wasn't a constraint, our focus of improvement would be direct to the implementation of a better and more robust evaluation function for the computer as ours is to afraid to make mistakes and will sometimes loop endlessly when playing against another computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response.
