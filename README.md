@@ -85,10 +85,6 @@ The current player is the player in the head of the turn List. The turn list is 
 player(human).
 player(computer).
 
-% phase(+Phase)/1
-phase(drop).
-phase(capture).
-phase(peek).
 ```
 
 #### Move
@@ -215,9 +211,7 @@ game_over(Board, Winner):-
 
 ### Computer Evaluation
 
-To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent. We noted that this makes the computer more prudent but had the setback of making them sometimes repeat moves endlessly, in the PC vs PC mode as no PC wanted to make a compromising play. 
-
-We used depth of 3 in the algorithm, however if there is no good move seen by the computer he will try to search for better moves, using 5 levels of depth.
+To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent plus a value to avoid captures of our pc pieces. We noted that this makes the computer more prodent but had the setback of making them sometimes repeat moves endlessly, PCvsPC. We used depth of 3 in the algorithm, however if there is no good move seen by the computer he will try to search for better moves, using 5 levels of depth.
 
 We had the need to add some arguments to the predicate. We added Player-Phase, and Depth, needed for minimax algorithm.
 
@@ -232,7 +226,7 @@ value(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-
 
 ### Computer Selected Moves
 
-The moves done by the computer AI are dependent on the difficulty desired, being the calculation of the best move performed by the `choose_move(+GameState, +Player-Phase, +Level, -Move)/4` predicate. If the AI level 1 (Random) is selected, then the behavior is not smart as only random valid moves will be preformed.
+The moves done by the computer AI are dependent on the difficulty desired, being the calculation of the best move performed by the `choose_move(+GameState, +Player-Phase, +Level, -Move)/4` predicate. If the AI level 1 (Random) is selected, then the behavior is not smart as only random valid moves will be performed.
 
 If the intelligent option is selected, then computer takes time using the previously mentioned minmax algorithm to find the move that results in the best outcome for itself and, simultaneously, the worst option for the opponent using the `get_best_play(+GameState-ObjectivePlayer, +Player-Phase, -BestPlay)/3` predicate.
 
