@@ -167,13 +167,27 @@ set_game_state(P1-P2-PC_Level) :-
 
 % ====================== BOARD PRINT ======================
 
+
+% print from a to z depending on the number of columns
+print_col(0):-!.
+print_col(N):-
+	N1 is N-1,
+	print_col(N1),
+	Col is N1 + 97,
+	char_code(C, Col),
+	write(C), write('  ').
+	
+
+
 % display_game(+Board)/1
 % Displays the entire game board
 display_game(Board):- 
 	write('\n '), 
 	display_game_(Board, -1), 
-	print_n('-', 14),
-	write('\n a  b  c  d  e\n').
+	board_size(_, Col),
+	print_n('-', Col*3),
+	write('\n '),
+	print_col(Col), write('\n').
 
 % display_game_(+Board, +N)/2
 % Displays the game board line by line

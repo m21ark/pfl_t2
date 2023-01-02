@@ -11,11 +11,18 @@ initial_state(Col-Row, Board-WhiteTurn-WhiteCount-BlackCount):-
 	gen_2d_array(Row, Col, 'O', Board),
 	asserta((board_size(R, C) :- R is Row, C is Col)),
 	WhiteTurn = 1,
-	WhiteCount = 12,
-	BlackCount = 12.
+	WhiteCount is Col*Row/2 - 3,
+	BlackCount is Col*Row/2 - 3.
 
 % drop_phase(+Board, +WhiteCount, +BlackCount, +WhiteTurn-Level-Players, -New_Board)/5
 % defines the drop phase of the game, where the players place their pieces on the board.
+% Board: the current board
+% WhiteCount: the number of white pieces left to place
+% BlackCount: the number of black pieces left to place
+% WhiteTurn: the current player turn
+% Level: the level of the computer player
+% Players: the players of the game [Cplayer,NewP]
+% New_Board: the new board after the drop phase
 drop_phase(Board, _X, 0, _, Board):- _X == -1, !.
 drop_phase(Board, 0, _X, _, Board):- _X == -1, !.
 drop_phase(Board, 0, 0, _, Board):-!.
@@ -63,6 +70,11 @@ drop_phase(Board, WhiteCount, BlackCount, WhiteTurn-Level-[Cplayer,NewP], New_Bo
 
 % capture_phase(+Board, +WhiteTurn-Level-Players, -New_Board)/3
 % defines the capture phase of the game, where the players can capture their opponent's pieces with 3 pieces allign.
+% Board: the current board
+% WhiteTurn: the current player turn
+% Level: the level of the computer player
+% Players: the players of the game [Cplayer,NewP]
+% New_Board: the new board after the capture phase
 capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 	game_over(Board, Winner),
 	(
@@ -105,6 +117,10 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 
 % match_(+Board, +Color, +Col-Row, -RC-RR)/4
 % checks if there is a match (horizontally and vertically) of 3 pieces of the same color as Color in the position played.
+% Board: the current board
+% C: the color of the piece played
+% Col-Row: the position played
+% RC-RR: the position of the piece that was captured
 match_(BoardBefore, C, Col-Row, RC-RR) :-
 	detect_match(BoardBefore, RC-RR, CC-CR, Col-Row),
 	(
@@ -129,6 +145,10 @@ match_(BoardBefore, C, Col-Row, RC-RR) :-
 
 % capture_phase_black(+Board, +Level, +Players, -New_Board)/4
 % defines the capture phase of the game for the black player.
+% Board: the current board
+% Level: the level of the computer player
+% NewP: the next player of the game [Cplayer,NewP]
+% New_Board: the new board after the capture phase
 capture_phase_black(Board, Level, NewP, New_Board):-
 
 	piece_move(Board, 'B', B1, NewCol-NewRow),
@@ -155,6 +175,10 @@ capture_phase_black(Board, Level, NewP, New_Board):-
 	
 % capture_phase_white(+Board, +Level, +Players, -New_Board)/4
 % defines the capture phase of the game for the white player.
+% Board: the current board
+% Level: the level of the computer player
+% NewP: the next player of the game [Cplayer,NewP]
+% New_Board: the new board after the capture phase
 capture_phase_white(Board, Level, NewP, New_Board):-
 
 	piece_move(Board, 'W', B1, NewCol-NewRow),
@@ -184,12 +208,21 @@ capture_phase_white(Board, Level, NewP, New_Board):-
 
 % get_piece(+Board, +Row, +Col, -Piece)/4
 % gets the piece in the position Row-Col of the board.
+% Board: the current board
+% Row: the row of the piece
+% Col: the column of the piece
+% Piece: the piece in the position Row-Col
 get_piece(Board, Row, Col, Piece):-
 	nth0(Row, Board, Row_),
 	nth0(Col, Row_, Piece).
 
 % set_piece(+Board, +Row, +Col, +Color, -New_Board)/5
 % sets the piece in the position Row-Col of the board to Color.
+% Board: the current board
+% Row: the row of the piece
+% Col: the column of the piece
+% Color: the color of the piece
+% New_Board: the new board after the piece is set
 set_piece(Board, Row, Col, Color, New_Board):-
 	nth0(Row, Board , Row_),
 	list_replace(Row_, Col, Color, New_Row),
@@ -197,6 +230,9 @@ set_piece(Board, Row, Col, Color, New_Board):-
 
 % capture_piece(+Board, +Color, -New_Board)/3
 % captures a piece of the opposite color, from position asked to the user.
+% Board: the current board
+% Color: the color of the piece that is capturing
+% New_Board: the new board after the piece is captured
 capture_piece(Board, Color, New_Board):-
 	ask_pos('Take piece at ', Color, Row-Col),
 	get_piece(Board, Row, Col, Piece),
@@ -205,6 +241,9 @@ capture_piece(Board, Color, New_Board):-
 
 % piece_drop(+Board, +Color, -New_Board)/3
 % drops a piece of the same color in a position asked to the user.
+% Board: the current board
+% Color: the color of the piece that is dropping
+% New_Board: the new board after the piece is dropped
 piece_drop(Board, Color, New_Board):-
 	ask_pos('Drop piece at ', Color, Row-Col),
 	check_cross(Board, Row, Col, Color),
@@ -212,6 +251,10 @@ piece_drop(Board, Color, New_Board):-
 
 % move(+Board, ?Move, +Color-Phase, -New_Board)/4
 % moves a piece, legally, of the same color from a position to another.
+% Board: the current board
+% Move: the move to be made
+% Color-Phase: the color and phase of the move
+% New_Board: the new board after the piece is moved
 move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 	Phase == capture ->
 		get_piece(Board, CR, CC, CurPos),
@@ -231,6 +274,10 @@ move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 
 % check_cross(+Board, +Row, +Col, +Color)/4
 % checks if the piece in position Row-Col of the board is in a cross pattern.
+% Board: the current board
+% Row: the row of the piece
+% Col: the column of the piece
+% Color: the color of the piece
 check_cross(Board, Row, Col, Color):-
 	board_size(MR, MC),
 	(
@@ -271,6 +318,10 @@ check_cross(Board, Row, Col, Color):-
 
 % detect_match(+Board, -RetC-RetR, -ColorC-ColorR, +Col-Row)/4
 % detects if there is a match of 3, horizontal and vertically , pieces in the board at Col-Row.
+% Board: the current board
+% RetC-RetR: the column and row of the match
+% ColorC-ColorR: the color of the match
+% Col-Row: the column and row of the piece that is being dropped
 detect_match(Board, RetC-RetR, ColorC-ColorR, Col-Row):- 
 	nth0(Row, Board, RRow),
 	rle(RRow, L),
@@ -287,8 +338,11 @@ detect_match(Board, RetC-RetR, ColorC-ColorR, Col-Row):-
 	ColorR \= 'O' -> RetC is Col;
 	RetC is -1
 	).
+
 % detect_match_line(+List, -Color)/2
 % detects if there is a match of 3 pieces in the line.
+% List: the list of the line
+% Color: the color of the match to check against
 detect_match_line([], 'O'):-!.
 detect_match_line([[C,V]|T], Color):-
 	(
@@ -303,6 +357,10 @@ detect_match_line([[C,V]|T], Color):-
 
 % piece_move(+Board, +Color, -New_Board, -NewCol-NewRow)/4
 % moves a piece of the same color from a position to another, asking the input to the user.
+% Board: the current board
+% Color: the color of the piece that is moving
+% New_Board: the new board after the piece is moved
+% NewCol-NewRow: the new column and row of the piece
 piece_move(Board, Color, New_Board, NewCol-NewRow):-
 
 	ask_pos('Move from ', Color, CurRow-CurCol),
@@ -325,6 +383,8 @@ piece_move(Board, Color, New_Board, NewCol-NewRow):-
 
 % game_over(+Board, -Winner)/2
 % detects if there is a winner in the game.
+% Board: the current board
+% Winner: the winner of the game
 game_over(Board, Winner):- 
 	(	
 	flatten(Board, L),
