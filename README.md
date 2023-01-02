@@ -170,11 +170,13 @@ read_until_between(Min, Max, Ret):-
 
 ![Menu Input](docs/menu_input.png)
 
+In the next image we do a wrong input on purpose to show that the game program is resilient to invalid inputs, awaiting for a valid one to be given.
+
 ![Drop Input](docs/dropphase.png)
 
 ![Capture Input](docs/capture.png)
 
-The validation in input occurs in two phases. The first one is presented in the `ask_pos(Str, Color, Row-Col)` function in the `io.pl` file. This function is responsible for asking the user for a position and validating it (seeing if position is inside the board). This predicate is independent from the game state and can be used in any context. The second phase depends on the phase of the game. The `piece_drop(Board, Color, New_Board)` only accepts positions that are valid to that phase, backtracking if the move is invalid (making another call to `ask_pos/3`). The same happens with the `capture_piece(Board, Color, New_Board)` and `piece_move(Board, Color, New_Board, NewCol-NewRow)` predicate.
+The validation in input occurs in two phases. The first one is presented in the `ask_pos(Str, Color, Row-Col)` predicate present in the `io.pl` file. This predicate is responsible for asking the user for a position and validating it (seeing if position is inside the board). This predicate is independent from the game state and can be used in any context. The second phase depends on the phase of the game. The `piece_drop(Board, Color, New_Board)` only accepts positions that are valid to that phase, backtracking if the move is invalid (making another call to `ask_pos/3`). The same happens with the `capture_piece(Board, Color, New_Board)` and `piece_move(Board, Color, New_Board, NewCol-NewRow)` predicate.
 
 ### Move execution
 
@@ -299,8 +301,8 @@ get_best_play(Board-ObjP,Player-Phase,BestPlay):-
 
 We admit that this game was a bit more complex than what we were initially expecting and we are under the impression it's probably one of the hardest among the proposed game set.
 
-With that being said, we are happy that we managed to finish it in time, respecting all the rules proposed and making the code modular. We got some issues with some of the implemented rules. For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer due to the many phases and different applicable rules in each of them. Despite all that, we were able to solve all the issues and implement a good and playable game.
+With that being said, we are happy that we managed to finish it in time, respecting all the rules proposed and making the code modular. We got some issues with some of the implemented rules. For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation predicate for the computer due to the many phases and different applicable rules in each of them. Despite all that, we were able to solve all the issues and implement a good and playable game.
 
 ### Roadmap
 
-If time wasn't a constraint, our focus of improvement would be direct to the implementation of a better and more robust evaluation function for the computer as ours is to afraid to make mistakes and will sometimes loop endlessly when playing against another computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response.
+If time wasn't a constraint, our focus of improvement would be direct to the implementation of a better and more robust evaluation predicate for the computer as ours is to afraid to make mistakes and will sometimes loop endlessly when playing against another computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response.
