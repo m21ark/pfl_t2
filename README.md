@@ -123,6 +123,10 @@ To validate user input, we have many input related predicates in the `io.pl` fil
 
 Below there's an example of input & output related to a piece move that results in a 3 match which triggers the *peek phase* prompt.
 
+![Menu Input](docs/menu_input.png)
+
+![Drop Input](docs/dropphase.png)
+
 ![Capture Input](docs/capture.png)
 
 ### Move execution
