@@ -2,6 +2,8 @@
 
 This board game was made in Prolog for a project in our PFL course.
 
+![Game Image](docs/../src/dara.jpg)
+
 ## Group
 
 This project was developed by:
@@ -119,6 +121,8 @@ The board size is predefined to be 5x6 with 12 pieces for each player however th
 
 As the game itself requires at least 3 pieces of each color to play, it isn't adviced nor pratical to have a board smaller than 4x4.
 
+FALTA VALIDACAO DE ENTRADA
+
 ### Move execution
 
 This particular game's mechanics required us to alter the predicate suggested as it was missing the phase and color parameters that we needed to check if the move is legal and to know how to move the piece.
@@ -211,7 +215,9 @@ game_over(Board, Winner):-
 
 ### Computer Evaluation
 
-To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent. We noted that this makes the computer more prodent but had the setback of making them sometimes repeat moves endlessly, PCvsPC. We used depth of 3 in the algorithm, however if there is no good move seen by the computer he will try to search for better moves, using 5 levels of depth.
+To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent. We noted that this makes the computer more prudent but had the setback of making them sometimes repeat moves endlessly, in the PC vs PC mode as no PC wanted to make a compromising play. 
+
+We used depth of 3 in the algorithm, however if there is no good move seen by the computer he will try to search for better moves, using 5 levels of depth.
 
 We had the need to add some arguments to the predicate. We added Player-Phase, and Depth, needed for minimax algorithm.
 
@@ -224,7 +230,7 @@ value(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-
     executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc,Value,Depth).
 ```
 
-### Computer Calculated Plays
+### Computer Selected Moves
 
 The moves done by the computer AI are dependent on the difficulty desired, being the calculation of the best move performed by the `choose_move(+GameState, +Player-Phase, +Level, -Move)/4` predicate. If the AI level 1 (Random) is selected, then the behavior is not smart as only random valid moves will be preformed.
 
@@ -234,8 +240,18 @@ In the `get_best_play/3` predicate, the computer will try to find a play using a
 
 Finally, if both minmax depth 3 and 5 fail to find a good play, then a random move will be performed.
 
+```prolog
+% get_best_play(+GameState-ObjP, +Player-Phase, -BestPlay)/3
+get_best_play(Board-ObjP,Player-Phase,BestPlay):-
+    minmax(Board-ObjP,Player-Phase,BestPlay,3); % best play with depth 3.
+    nl,nl,write('Thinking a bit more for this one'),nl,nl,
+    minmax(Board-ObjP,Player-Phase,BestPlay,5); % best play with depth 5.
+    nl,nl,write('Cant figure a good move out... Lets just throw a move out of the box.'),nl,nl,
+    choose_move(Board, Player-Phase, 1, BestPlay). % minmax fails => random move.
+```
+
 ## Conclusions
 
-We think that the game was a bit more complex then what we were expecting at the beginning of the project. We also think that this game is probably one of the hardest of the set of games proposed. We are happy that we managed to finish it, respecting all the rules proposed and making modular code. We got some issues with some rules implemented.For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer and to have a playable design for the game. Despite of that, we were able to solve all the issues and implement a good playable game.
+We admit that this game was a bit more complex than what we were initially expecting and we are under the impression it's probably one of the hardest among the proposed game set. We are happy that we managed to finish it, respecting all the rules proposed and making modular code. We got some issues with some rules implemented.For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer and to have a playable design for the game. Despite of that, we were able to solve all the issues and implement a good playable game.
 
 A possible improvement would be to implement a better and more random evaluation function for the computer. Ours is to afraid to make mistakes and will sometimes loop endlessly when playing against other computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response. 
