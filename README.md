@@ -304,4 +304,4 @@ With that being said, we are happy that we managed to finish it in time, respect
 
 ### Roadmap
 
-If time wasn't a constraint, our focus of improvement would be direct to the implementation of a better and more robust evaluation predicate for the computer as ours is to afraid to make mistakes and will sometimes loop endlessly when playing against another computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response.
+If time wasn't a constraint, our focus of improvement would be direct to the implementation of a better and more robust evaluation predicate for the computer as ours is too afraid to make mistakes and will sometimes loop endlessly when playing against another computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response.
