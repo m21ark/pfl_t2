@@ -11,8 +11,8 @@ initial_state(Col-Row, Board-WhiteTurn-WhiteCount-BlackCount):-
 	gen_2d_array(Row, Col, 'O', Board),
 	asserta((board_size(R, C) :- R is Row, C is Col, !)),
 	WhiteTurn = 1,
-	WhiteCount is 12,
-	BlackCount is 12.
+	WhiteCount is Col*Row/2 - 3,
+	BlackCount is Col*Row/2 - 3.
 
 % drop_phase(+Board, +WhiteCount, +BlackCount, +WhiteTurn-Level-Players, -New_Board)/5
 % defines the drop phase of the game, where the players place their pieces on the board.
