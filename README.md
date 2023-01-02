@@ -59,13 +59,13 @@ Another less common way to end the game is by surrounding your opponent's pieces
 
  The game board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, we are able to make our program more modular.
 'B' denotes a black piece and 'W' a white piece
-It is also worthy to note that the size of the board is sored dinamically in the following line:
+It is also worthy to note that the size of the board is stored dinamically in the following line:
 
 ```prolog
 asserta((board_size(R, C) :- R is Row, C is Col, !)),
 ```
 
-Some example of boards:
+Below we present some boards examples in different game stages:
 
 Initial state:
 
@@ -102,7 +102,7 @@ Board = [['O','O','O','O','O'],
 
 #### Current phase
 
-The current phase represents the current phase of the game. This is a useful predicate to have as it allows the ai to know what phase it is in and act accordingly. The phase can be either drop, capture or peek.
+The current phase represents the current phase of the game. This is a useful predicate to have as it allows the AI to know what phase it currently is in and act accordingly. The phase can be either drop, capture or peek.
 
 ```prolog
 % phase(+Phase)/1
