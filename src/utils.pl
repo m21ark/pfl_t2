@@ -146,6 +146,8 @@ decrement_count(WhiteTurn, WhiteCount-BlackCount, NW-NB) :-
 	WhiteTurn == 1 -> NW is WhiteCount-1, NB is BlackCount;
 	NW is WhiteCount, NB is BlackCount-1.
 
+% convert_from_move_to_notation(+Col-Row, -S)/2
+% Converts a move from Col-Row notation to SN notation.
 convert_from_move_to_notation(Col-Row, S) :-
 	Col1 is Col + 65,
 	Row1 is Row + 48,
