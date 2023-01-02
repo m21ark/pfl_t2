@@ -93,9 +93,9 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 				clear,
 				convert_from_move_to_notation(CC-CR, MRepOld),
 				convert_from_move_to_notation(NC-NR, MRepNew),
-				format('Computer ~w played ~w -> ~w:\n',[Color, MRepOld, MRepNew]),
+				format('\nComputer ~w played ~w -> ~w:\n',[Color, MRepOld, MRepNew]),
 				display_game(New_Board1),nl,
-				format('Computer ~w Captured:\n',[Color]),
+				format('\nComputer ~w Captured:\n',[Color]),
 				display_game(New_Board2),nl,
 				sleep(2),
 				clear,
@@ -103,7 +103,7 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 			clear,
 			convert_from_move_to_notation(CC-CR, MRepOld),
 			convert_from_move_to_notation(NC-NR, MRepNew),
-			format('Computer ~w played ~w -> ~w:\n',[Color, MRepOld, MRepNew]),
+			format('\nComputer ~w played ~w -> ~w:\n',[Color, MRepOld, MRepNew]),
 			display_game(New_Board1),nl,
 			sleep(2),
 			clear,
@@ -160,7 +160,7 @@ capture_phase_black(Board, Level, NewP, New_Board):-
 	(
 		nonvar(RetC),
 		RetC >= 0,
-		format('Black match at Col=~d\n\n',[RetC]),
+		format('\nBlack match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1-Level-NextPlayer, New_Board)
 	);
@@ -168,7 +168,7 @@ capture_phase_black(Board, Level, NewP, New_Board):-
 	(
 		nonvar(RetR),
 		(RetR) >= 0,
-		format('Black match at Row=~d\n\n',[RetR]),
+		format('\nBlack match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1-Level-NextPlayer, New_Board)
 	);
@@ -190,7 +190,7 @@ capture_phase_white(Board, Level, NewP, New_Board):-
 	(
 		nonvar(RetC),
 		RetC >= 0,
-		format('White match at Col=~d\n\n',[RetC]),
+		format('\nWhite match at Col=~d\n\n',[RetC]),
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0-Level-NextPlayer, New_Board)
 	);
@@ -198,7 +198,7 @@ capture_phase_white(Board, Level, NewP, New_Board):-
 	(
 		nonvar(RetR),
 		(RetR) >= 0,
-		format('White match at Row=~d\n\n',[RetR]),
+		format('\nWhite match at Row=~d\n\n',[RetR]),
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0-Level-NextPlayer, New_Board)
 	);
