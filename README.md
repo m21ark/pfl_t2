@@ -154,6 +154,10 @@ To validate user input, we have many input related predicates in the `io.pl` fil
 
 Below there's an example of input & output related to a piece move that results in a 3 match which triggers the *peek phase* prompt.
 
+![Menu Input](docs/menu_input.png)
+
+![Drop Input](docs/dropphase.png)
+
 ![Capture Input](docs/capture.png)
 
 The validation in input occurs in two phases. The first one is presented in the `ask_pos(Str, Color, Row-Col)` function in the `io.pl` file. This function is responsible for asking the user for a position and validating it (seeing if position is inside the board). This predicate is independent from the game state and can be used in any context. The second phase depends on the phase of the game. The `piece_drop(Board, Color, New_Board)` only accepts positions that are valid to that phase, backtracking if the move is invalid (making another call to `ask_pos/3`). The same happens with the `capture_piece(Board, Color, New_Board)` and `piece_move(Board, Color, New_Board, NewCol-NewRow)` predicate.	
