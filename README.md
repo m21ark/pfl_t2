@@ -2,7 +2,7 @@
 
 This board game was made in Prolog for a project in our PFL course.
 
-![Game Image](docs/../src/dara.jpg)
+![Game Image](docs/dara.jpg)
 
 ## Group
 
