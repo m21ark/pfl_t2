@@ -114,7 +114,7 @@ game_menu_show:-
 	print_Vpadd('*', L2, 1),	
 	print_text('3) PC vs PC            ', '*' ,3), nl,
     print_Vpadd('*', L2, 1),	
-    print_text('0) Go Back             ', '*' ,3), nl,
+    print_text('0) Quit                ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
 
@@ -137,7 +137,7 @@ pc_menu_level_show:-
 	print_Vpadd('*', L2, 1),	
 	print_text(' 2) Inteligent         ', '*' ,3), nl,
     print_Vpadd('*', L2, 1),	
-	print_text(' 0) Quit               ', '*' ,3), nl,
+	print_text(' 0) Go Back            ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
 
