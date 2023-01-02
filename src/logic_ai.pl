@@ -66,8 +66,8 @@ executeAll(_-P,'W'-_,[],_, Score,_) :- P == 'W' -> Score is -100000; Score is 10
 executeAll(_-P,'B'-_,[],_, Score,_) :- P == 'B' -> Score is -100000; Score is 100000.
 
 % if depth of recursion reaches limit, value is infinite
-executeAll(Board-P,'W'-_,_,_,Score, 0) :-  P == 'W' -> Score is -100000; Score is 100000.
-executeAll(Board-P,'B'-_,_,_,Score, 0) :-  P == 'B' -> Score is -100000; Score is 100000.
+executeAll(_Board-P,'W'-_,_,_,Score, 0) :-  P == 'W' -> Score is -100000; Score is 100000.
+executeAll(_Board-P,'B'-_,_,_,Score, 0) :-  P == 'B' -> Score is -100000; Score is 100000.
 
 % Recursively calculate the value of all valid moves and returns the best one by value until the depth limit is reached.
 % The value is calculated the best option to the current player and the worst outcome to the opponent.
@@ -129,7 +129,7 @@ executeAll(Board-ObjP,Player-Phase,[CC-CR/NC-NR|MoveList],BestSucc,Value,Depth) 
 % Score: The score of the move.
 % Move: The move to be made.
 % This predicate checks if move leads to a 3match from the current player or the opponent.
-pc_move_avaliator(Board-ObjP, Color-Phase, Score, CC-CR/NC-NR):-
+pc_move_avaliator(Board-ObjP, Color-_, Score, _-_/NC-NR):-
 	(
 		match_(Board, Color, NC-NR, RC-RR),  (RC >= 0; RR >= 0)
 	)->
@@ -148,14 +148,14 @@ pc_move_avaliator(Board-ObjP, Color-Phase, Score, CC-CR/NC-NR):-
 
 % If the player is in the drop phase, then the valid moves are all the empty spaces not orthagonally adjacent to any friendly piece.
 valid_moves(GameState, Color-drop, Moves):-
-	findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-Phase, NB)), Moves).
+	findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-_, _)), Moves).
 
 % If the player is in the capture phase, then the valid moves are all the orthagonal moves that can be made by any friendly piece.
 valid_moves(GameState, Color-capture, Moves):- 
-	findall(Move, move(GameState, Move, Color-capture, NewState), Moves).
+	findall(Move, move(GameState, Move, Color-capture, _), Moves).
 
 % If the player is in the peek phase, then the valid moves are all the opponent pieces that can be taken.
 valid_moves(GameState, Color-peek, Moves):-
 	next_color(Color, NColor),
 	findall(0-0/NC-NR, get_piece(GameState, NR, NC, NColor), Moves);
-	findall(Move, move(GameState, Move, Color-Phase, NewState), Moves).
+	findall(Move, move(GameState, Move, Color-_, _), Moves).

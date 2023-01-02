@@ -91,12 +91,12 @@ rle([X|XT], [[1, X], [SubCount, Y] | RestEncoded]) :-
 
 % gen_2d_array(+N, +M, +C, -Matrix)/4
 % Generates a N x M matrix with all elements equal to C.
-gen_2d_array(0, _, C, []):-!.
+gen_2d_array(0, _, _C, []):-!.
 gen_2d_array(N, M, C, [H|T]):- N > 0, gen_1d_array(M, C, H), N1 is N-1, gen_2d_array(N1, M, C, T).
 
 % gen_1d_array(+N, +C, -Array)/3
 % Generates a 1D array of size N with all elements equal to C.
-gen_1d_array(0, C, []):-!.
+gen_1d_array(0, _C, []):-!.
 gen_1d_array(N, C, [H|T]):- N > 0, H = C, N1 is N-1, gen_1d_array(N1, C, T).
 
 % ====================== Game UTILS ======================
