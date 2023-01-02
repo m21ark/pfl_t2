@@ -55,11 +55,7 @@ Another less common way to end the game is by surrounding your opponent's pieces
 
 #### Board
 
- Board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array/4` predicate, , we are able to make our program modular and ready to be used in other games/boards.
-
-```prolog
-gen_2d_array(Row, Col, 'O', Board),
-```
+ Board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, , we are able to make our program more modular.
 
 It is also worthy to note that the size of the board is sored dinamically in the following line:
 
@@ -157,6 +153,7 @@ move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
   Cabs =< 1, Rabs =< 1, Cabs \= Rabs;
  check_cross(Board, NR, NC, Color),
  set_piece(Board, NR, NC, Color, NewBoard).
+```
 
 ### Set of Valid Moves
 
