@@ -83,10 +83,6 @@ The current player is the player in the head of the turn List. The turn list is 
 player(human).
 player(computer).
 
-% phase(+Phase)/1
-phase(drop).
-phase(capture).
-phase(peek).
 ```
 
 #### Move
