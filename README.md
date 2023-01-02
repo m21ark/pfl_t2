@@ -154,6 +154,16 @@ To validate user input, we have many input related predicates in the `io.pl` fil
 
 Below there's an example of input & output related to a piece move that results in a 3 match which triggers the *peek phase* prompt.
 
+In the menu, to ensure that the user picks a valid option, we use the `read_until_between/2` predicate which will only accept a number between 1 and 4.
+
+```prolog
+read_until_between(Min, Max, Ret):-
+	write('> '),read_number(V),
+	between(Min,Max, V) -> Ret is V;
+	write('Invalid number!'),nl,
+	read_until_between(Min, Max, Ret).
+```
+
 ![Menu Input](docs/menu_input.png)
 
 ![Drop Input](docs/dropphase.png)
