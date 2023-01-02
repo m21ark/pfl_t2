@@ -64,9 +64,11 @@ It is also worthy to note that the size of the board is sored dinamically in the
 ```prolog
 asserta((board_size(R, C) :- R is Row, C is Col, !)),
 ```
+
 Some example of boards:
 
 Initial state:
+
 ```prolog
 Board = [['O','O','O','O','O'],
          ['O','O','O','O','O'],
@@ -75,7 +77,9 @@ Board = [['O','O','O','O','O'],
          ['O','O','O','O','O'],
          ['O','O','O','O','O']],
 ```
+
 Intermedium state with white opportunity to capture:
+
 ```prolog
 Board = [['B','W','O','O','W'],
          ['O','O','O','O','O'],
@@ -84,7 +88,9 @@ Board = [['B','W','O','O','W'],
          ['O','W','O','B','O'],
          ['W','B','O','B','O']],
 ```
+
 End State
+
 ```prolog
 Board = [['O','O','O','O','O'],
          ['O','O','O','B','O'],
@@ -148,20 +154,18 @@ As the game itself requires at least 3 pieces of each color to play, it isn't ad
 
 #### Input Validation
 
-
-
 To validate user input, we have many input related predicates in the `io.pl` file.
 
 Below there's an example of input & output related to a piece move that results in a 3 match which triggers the *peek phase* prompt.
 
-In the menu, to ensure that the user picks a valid option, we use the `read_until_between/2` predicate which will only accept a number between 1 and 4.
+In the menu, to ensure that the user picks a valid option, we use the `read_until_between/2` predicate which will only accept a number between the selected range.
 
 ```prolog
 read_until_between(Min, Max, Ret):-
-	write('> '),read_number(V),
-	between(Min,Max, V) -> Ret is V;
-	write('Invalid number!'),nl,
-	read_until_between(Min, Max, Ret).
+ write('> '),read_number(V),
+ between(Min,Max, V) -> Ret is V;
+ write('Invalid number!'),nl,
+ read_until_between(Min, Max, Ret).
 ```
 
 ![Menu Input](docs/menu_input.png)
@@ -170,11 +174,9 @@ read_until_between(Min, Max, Ret):-
 
 ![Capture Input](docs/capture.png)
 
-The validation in input occurs in two phases. The first one is presented in the `ask_pos(Str, Color, Row-Col)` function in the `io.pl` file. This function is responsible for asking the user for a position and validating it (seeing if position is inside the board). This predicate is independent from the game state and can be used in any context. The second phase depends on the phase of the game. The `piece_drop(Board, Color, New_Board)` only accepts positions that are valid to that phase, backtracking if the move is invalid (making another call to `ask_pos/3`). The same happens with the `capture_piece(Board, Color, New_Board)` and `piece_move(Board, Color, New_Board, NewCol-NewRow)` predicate.	
-
+The validation in input occurs in two phases. The first one is presented in the `ask_pos(Str, Color, Row-Col)` function in the `io.pl` file. This function is responsible for asking the user for a position and validating it (seeing if position is inside the board). This predicate is independent from the game state and can be used in any context. The second phase depends on the phase of the game. The `piece_drop(Board, Color, New_Board)` only accepts positions that are valid to that phase, backtracking if the move is invalid (making another call to `ask_pos/3`). The same happens with the `capture_piece(Board, Color, New_Board)` and `piece_move(Board, Color, New_Board, NewCol-NewRow)` predicate.
 
 ### Move execution
-
 
 As this game has 2 phases (drop & capture) and during the capture phase a move can be a simple move or a piece capture, this predicate quickly becomes complex. In the drop phase, we have to check if a dropping place isn't yet orthagonally adjecent to any piece of the current player (which requires a `check_cross/4` predicate). In the capture phase, a simple move only needs to check if it is made from a current player's piece position to an empty adjacent cell. Finally, to take an opposite player's piece, we only need to check if the board position contains a piece of the opponent.
 
@@ -260,7 +262,7 @@ game_over(Board, Winner):-
 
 ### Computer Evaluation
 
-To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent plus a value to avoid captures of our pc pieces. We noted that this makes the computer more prodent but had the setback of making them sometimes repeat moves endlessly, PCvsPC. 
+To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent plus a value to avoid captures of our pc pieces. We noted that this makes the computer more prodent but had the setback of making them sometimes repeat moves endlessly, PCvsPC.
 
 We had the need to add some arguments to the predicate. We added Player-Phase, and Depth, needed for minimax algorithm.
 
