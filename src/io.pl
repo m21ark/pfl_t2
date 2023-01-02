@@ -163,7 +163,7 @@ set_game_state(P1-P2-PC_Level) :-
 	capture_phase(NB, WhiteTurn-PC_Level-Turns, New_Board), 
 	game_over(New_Board, Winner),
 	display_game(New_Board),nl,
-	format('The winner is: ~w', [Winner]), ! .	
+	format('The winner is: ~w', [Winner]), sleep(5),! .	
 
 % ====================== BOARD PRINT ======================
 
