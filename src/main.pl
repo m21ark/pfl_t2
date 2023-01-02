@@ -28,6 +28,7 @@ phase(peek).
 % Main function that starts the game
 play:-
 	repeat,
+	clear,
 	game_menu_show, % Shows the game menu
 	read_until_between(0,3, OPT), % Reads the input option
 	switch(OPT, [
