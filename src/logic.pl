@@ -8,17 +8,11 @@
 % initial_state(+Col-Row, -Board-WhiteTurn-WhiteCount-BlackCount)/2
 % defines the initial state of the game, with the board (Col-Row given), the turn and the number of pieces left to place.
 initial_state(Col-Row, Board-WhiteTurn-WhiteCount-BlackCount):-
-	%gen_2d_array(Row, Col, 'O', Board),
-		Board = [['B','W','B','W','B'],
-			 ['W','W','O','O','W'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O'],
-			 ['O','O','O','O','O']],
+	gen_2d_array(Row, Col, 'O', Board),
 	asserta((board_size(R, C) :- R is Row, C is Col, !)),
 	WhiteTurn = 1,
-	WhiteCount is 0,
-	BlackCount is 0.
+	WhiteCount is 12,
+	BlackCount is 12.
 
 % drop_phase(+Board, +WhiteCount, +BlackCount, +WhiteTurn-Level-Players, -New_Board)/5
 % defines the drop phase of the game, where the players place their pieces on the board.
