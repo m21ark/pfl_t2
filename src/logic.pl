@@ -162,6 +162,7 @@ capture_phase_black(Board, Level, NewP, New_Board):-
 		nonvar(RetC),
 		RetC >= 0,
 		format('\nBlack match at Col=~d\n\n',[RetC]),
+		display_game(B1),nl,nl,
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1-Level-NextPlayer, New_Board)
 	);
@@ -170,6 +171,7 @@ capture_phase_black(Board, Level, NewP, New_Board):-
 		nonvar(RetR),
 		(RetR) >= 0,
 		format('\nBlack match at Row=~d\n\n',[RetR]),
+		display_game(B1),nl,nl,
 		capture_piece(B1, 'B', B2),
 		capture_phase(B2, 1-Level-NextPlayer, New_Board)
 	);
@@ -192,6 +194,7 @@ capture_phase_white(Board, Level, NewP, New_Board):-
 		nonvar(RetC),
 		RetC >= 0,
 		format('\nWhite match at Col=~d\n\n',[RetC]),
+		display_game(B1),nl,nl,
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0-Level-NextPlayer, New_Board)
 	);
@@ -200,6 +203,7 @@ capture_phase_white(Board, Level, NewP, New_Board):-
 		nonvar(RetR),
 		(RetR) >= 0,
 		format('\nWhite match at Row=~d\n\n',[RetR]),
+		display_game(B1),nl,nl,
 		capture_piece(B1, 'W', B2),
 		capture_phase(B2, 0-Level-NextPlayer, New_Board)
 	);
