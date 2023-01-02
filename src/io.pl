@@ -179,8 +179,6 @@ print_col(N):-
 	char_code(C, Col),
 	write(C), write('  ').
 	
-
-
 % display_game(+Board)/1
 % Displays the entire game board
 display_game(Board):- 
@@ -206,9 +204,9 @@ display_game_([H|T], N):-
 	write('| '),write(N1),write('\n '), 
 	display_game_(T,N1).
 
-
+% display_rules/0
+% Displays the game rules
 display_rules:-
-
 	nl,nl,write('Game Instructions:'),nl,nl,
 	write('The game is played on a 5x6 board.'), nl,
 	write('Each player (White vs Black) has 12 pieces.'), nl,
@@ -218,7 +216,6 @@ display_rules:-
 	write('     > The pieces cant be dropped orthagonally adjacent to any of your other pieces.'),nl,
 	write('     > It may be the case that you cant place any of your pieces, skipping your turn.'),nl,
 	write('     > This phase ends when all pieces are placed or neither user can place anything.'),nl,
-
 	nl,write(' - Capture Phase:'), nl,
 	write('     > The goal is to capture the opponent pieces.'), nl,
 	write('     > Players take turns moving a piece of their own in a cross pattern 1 spot at a time.'), nl,
@@ -226,7 +223,6 @@ display_rules:-
 	write('     > If a 3 match takes place, you can remove any of the opponent`s pieces from the board .'), nl,
 	write('     > Wins the player who lefts the opponent only with 2 pieces.'),nl,
 	write('     > Alternatively, a player wins if the opponent has no valid moves to play. '),nl,nl,
-
 	write('Press Enter to continue'),
 	nl,nl,get_char(_).
 	
