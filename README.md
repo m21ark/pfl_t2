@@ -57,7 +57,7 @@ Another less common way to end the game is by surrounding your opponent's pieces
 
 #### Board
 
- Board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, we are able to make our program more modular.
+ The game board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, we are able to make our program more modular.
 
 It is also worthy to note that the size of the board is sored dinamically in the following line:
 
@@ -246,6 +246,10 @@ get_best_play(Board-ObjP,Player-Phase,BestPlay):-
 
 ## Conclusions
 
-We admit that this game was a bit more complex than what we were initially expecting and we are under the impression it's probably one of the hardest among the proposed game set. We are happy that we managed to finish it, respecting all the rules proposed and making modular code. We got some issues with some rules implemented.For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer and to have a playable design for the game. Despite of that, we were able to solve all the issues and implement a good playable game.
+We admit that this game was a bit more complex than what we were initially expecting and we are under the impression it's probably one of the hardest among the proposed game set.
 
-A possible improvement would be to implement a better and more random evaluation function for the computer. Ours is to afraid to make mistakes and will sometimes loop endlessly when playing against other computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response. 
+With that being said, we are happy that we managed to finish it in time, respecting all the rules proposed and making the code modular. We got some issues with some of the implemented rules. For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer due to the many phases and different applicable rules in each of them. Despite all that, we were able to solve all the issues and implement a good and playable game.
+
+### Roadmap
+
+If time wasn't a constraint, our focus of improvement would be direct to the implementation of a better and more robust evaluation function for the computer as ours is to afraid to make mistakes and will sometimes loop endlessly when playing against another computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response.
