@@ -55,14 +55,12 @@ Another less common way to end the game is by surrounding your opponent's pieces
 
 #### Board
 
- Board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, , we are able to make our program more modular.
+ Board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, we are able to make our program more modular.
 
 It is also worthy to note that the size of the board is sored dinamically in the following line:
 
 ```prolog
-...
 asserta((board_size(R, C) :- R is Row, C is Col, !)),
-...
 ```
 
 #### Current phase
@@ -70,9 +68,7 @@ asserta((board_size(R, C) :- R is Row, C is Col, !)),
 The current phase represents the current phase of the game. This is a useful predicate to have as it allows the ai to know what phase it is in and act accordingly. The phase can be either drop, capture or peek.
 
 ```prolog
-
 % phase(+Phase)/1
-% Phase can be either capture, drop or peek
 phase(drop).
 phase(capture).
 phase(peek).
@@ -84,12 +80,10 @@ The current player is the player in the head of the turn List. The turn list is 
 
 ```prolog
 % player(+Player)/1
-% Player can be either human or computer
 player(human).
 player(computer).
 
 % phase(+Phase)/1
-% Phase can be either capture, drop or peek
 phase(drop).
 phase(capture).
 phase(peek).
@@ -97,11 +91,7 @@ phase(peek).
 
 #### Move
 
-It was also worthy to have a good representation of a move. We represented it with the following structure:
-
-```prolog
-Move ----> CC-CR/NC-NR
-```
+Finally, it was also worth it to have a good representation of a move. We represented it with a pair of pairs structure: `CC-CR/NC-NR`. The first pair represents the current column and row and the second pair represents the new values for column and row.
 
 ### Game State Visualization
 
@@ -117,29 +107,32 @@ To display the gameState, which consists only of the board, we  implemented the 
 
 ![Board](docs/board.png)
 
+Where:
+
 `W` - White occupied space
 `B` - Black occupied space
 `O` - Empty space
 
-At the start of a game, the initial state is set using the `initial_state(+Size, -GameState)` predicate, where Size is a pair Col-Row. The gameState includes, apart from the empty board, the initial number of white and black pieces and who will start playing first.
+At the start of a game, the initial state is set using the `initial_state(+Size, -GameState)` predicate, where *Size* is a Col-Row pair. The gameState includes, apart from the empty board, the initial number of white and black pieces and who will start playing first.
 
 The board size is predefined to be 5x6 with 12 pieces for each player however the dimensions can be easily changed in the argument 'size' of the `initial_state` predicate and the number of pieces will update accordingly.
 
-As the game itself requires at least 3 pieces of each color to play, it isn't adviced nor pratical to have a board much smaller than 4x4.
+As the game itself requires at least 3 pieces of each color to play, it isn't adviced nor pratical to have a board smaller than 4x4.
 
 ### Move execution
 
-We had the need to alter the predicate as it was missing the phase and color parameters. Those parameters are necessary to check if the move is legal and to know how to move the piece.
+This particular game's mechanics required us to alter the predicate suggested as it was missing the phase and color parameters that we needed to check if the move is legal and to know how to move the piece.
 In the drop phase, the piece is just placed in the board. Following the cross rule above described.
-In the capture phase, the piece is moved to a new position respecting the rules implied to this phase. If this move returns a match in the board, we will just select a opponent piece to capture.  
+In the capture phase, the piece is moved to a new position respecting the rules implied to this phase. If this move returns a match in the board, we will just select a opponent piece to capture.
+
+**TODO:**
+
+As this game has 2 phases (drop & capture) and during the capture phase a move can be a simple move or a piece capture, this predicate quickly becomes complex. In the drop phase, we have to check if a dropping place isn't yet orthagonally adjecent to any piece of the current player (which requires a `check_cross/4` predicate). In the capture phase, a simple move only needs to check if it is made from a current player's piece position to an empty adjacent cell. Finally, to take an opposite player's piece, we only need to check if the board position contains a piece of the opponent.
+
+If all validation succeedes for the specific move type, then the `get_piece/4` and `set_piece/5`  predicates will update the board matrix to reflect those changes.
 
 ```prolog
 % move(+Board, ?Move, +Color-Phase, -New_Board)/4
-% moves a piece, legally, of the same color from a position to another.
-% Board: the current board
-% Move: the move to be made
-% Color-Phase: the color and phase of the move
-% New_Board: the new board after the piece is moved
 move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
  Phase == capture ->
   get_piece(Board, CR, CC, CurPos),
@@ -157,28 +150,41 @@ move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 
 ### Set of Valid Moves
 
-The validation and execution of a given move by the player or calculated by the AI, is assured using the predicate `move(+GameState, +Move, +Color-Phase, -NewGameState)`.
-This predicate takes a gameState (a board), a move to be validated and, if correct, executes it for the Color Player given in the provided Phase, returning the new game board state.
+The validation and execution of a given move by the player or calculated by the AI, is assured using the predicate `move(+GameState, +Move, +Color-Phase, -NewGameState)/4`.
+This predicate takes a gameState (a board), a move to be validated using the previously stated rules and, if correct, executes it for the Color Player given in the provided Phase, returning the new game board state.
 
-As this game has 2 phases (drop & capture) and during the capture phase a move can be a simple move or a piece capture, this predicate quickly becomes complex. In the drop phase, we have to check if a dropping place isn't yet orthagonally adjecent to any piece of the current player (which requires a `check_cross/4` predicate). In the capture phase, a simple move only needs to check if it is made from a current player's piece position to an empty adjacent cell. Finally, to take an opposite player's piece, we only need to check if the board position contains a piece of the opponent.
+To get the set of all valid moves, we used the buit-in `findall` predicate in conjunction with our `move/4` predicate to get all moves that fit the necessary criteria for each phase's move type.
 
-If all validation succeedes for the specific move type, then the `get_piece/4` and `set_piece/5`  predicates will update the board matrix to reflect those changes.
+```prolog
+% valid_moves(+GameState, +Color-Phase, -Moves)/3
+
+% Drop Phase Valid Moves
+valid_moves(GameState, Color-drop, Moves):-
+findall(0-0/NC-NR, (get_piece(GameState, NR, NC, 'O'), move(GameState, 0-0/NC-NR, Color-_, _)), Moves).
+
+% Capture Phase Valid Moves
+valid_moves(GameState, Color-capture, Moves):- 
+    findall(Move, move(GameState, Move, Color-capture, _), Moves).
+
+% Peek Phase Valid Moves
+valid_moves(GameState, Color-peek, Moves):-
+    next_color(Color, NColor),
+    findall(0-0/NC-NR, get_piece(GameState, NR, NC, NColor), Moves);
+    findall(Move, move(GameState, Move, Color-_, _), Moves).
+```
 
 ### Final Game State
 
-There are 2 possible final game states:
+There are 2 possible ways to end the game:
 
-> - The game is over because the opponent has no more pieces left to win the game
-> - The game is over because the opponent has no more moves to make
+- The game can be won because the opponent has no more pieces left to win the game (two or less)
+- The game can be won because the opponent has no more valid moves to make (it is stuck)
 
 To detect the first case, we just need to count the number of pieces of each color and check if one of them is less than 3. If that is the case, the game is over and the winner is the player with more pieces.
 To detect the second case, we need to check if the opponent has any valid moves to make. If he doesn't, the game is over and the winner is the player with more pieces.
 
 ```prolog
 % game_over(+Board, -Winner)/2
-% detects if there is a winner in the game.
-% Board: the current board
-% Winner: the winner of the game
 game_over(Board, Winner):- 
     (
     flatten(Board, L),
@@ -213,15 +219,9 @@ The evaluation predicate is implemented in the following predicate:
 
 ```prolog
 % value(+GameState-ObjP, +Player-Phase, -BestSucc, -Value, +Depth)/5
-% GameState-ObjP: The current state of the game and the objective player.
-% Player-Phase: The player and phase to make a move.
-% BestSucc: The best calculated play to be made.
-% Value: The value of the best play.
-% Depth: The depth of the AI depth search.
-% This predicate calculates the value and best move from all valid moves to be made by AI Player.
 value(Board-ObjP,Player-Phase,BestSucc,Value,Depth) :-  
-    valid_moves(Board, Player-Phase, MoveList), % Get all valid moves to be made by Player in Board in current Phase.
-    executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc,Value,Depth). % Calculate the value of all valid moves and returns the best one.
+    valid_moves(Board, Player-Phase, MoveList),
+    executeAll(Board-ObjP,Player-Phase,MoveList,BestSucc,Value,Depth).
 ```
 
 ### Computer Calculated Plays
