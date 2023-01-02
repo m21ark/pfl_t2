@@ -58,8 +58,9 @@ ask_pos(Str, Color, Row-Col) :-
 	Len == 2,
 	Col is C - 97,
 	Row is R - 48,
-	Row >= 0, Row =< 5,
-	Col >= 0, Col =< 4,true.
+	board_size(MR, MC),
+	Row >= 0, Row =< MR - 1,
+	Col >= 0, Col =< MC - 1,true.
 
 % ======================= PRINT UTILS =======================
 

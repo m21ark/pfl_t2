@@ -3,11 +3,13 @@
 
 % ======================= GAME LOGIC =======================
 
+:-dynamic board_size/2.
 
 % initial_state(+Col-Row, -Board-WhiteTurn-WhiteCount-BlackCount)/2
 % defines the initial state of the game, with the board (Col-Row given), the turn and the number of pieces left to place.
 initial_state(Col-Row, Board-WhiteTurn-WhiteCount-BlackCount):-
 	gen_2d_array(Row, Col, 'O', Board),
+	asserta((board_size(R, C) :- R is Row, C is Col)),
 	WhiteTurn = 1,
 	WhiteCount = 12,
 	BlackCount = 12.
@@ -230,6 +232,7 @@ move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
 % check_cross(+Board, +Row, +Col, +Color)/4
 % checks if the piece in position Row-Col of the board is in a cross pattern.
 check_cross(Board, Row, Col, Color):-
+	board_size(MR, MC),
 	(
 	get_piece(Board, Row, Col, Pos),
 	Pos == 'O'
@@ -243,7 +246,7 @@ check_cross(Board, Row, Col, Color):-
 	), !,
 	(
 	Col2 is Col+1,
-	Col2 =< 4->
+	Col2 =< MC-1 ->
 		get_piece(Board, Row, Col2, Pos2),
 		Pos2 \= Color;
 	true
@@ -257,7 +260,7 @@ check_cross(Board, Row, Col, Color):-
 	), !,
 	(
 	Row2 is Row+1,
-	Row2 =< 5->
+	Row2 =< MR-1->
 		get_piece(Board, Row2, Col, Pos4),
 		Pos4 \= Color;
 	true
