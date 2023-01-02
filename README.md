@@ -89,7 +89,7 @@ Board = [['B','W','O','O','W'],
          ['W','B','O','B','O']],
 ```
 
-End State
+End State:
 
 ```prolog
 Board = [['O','O','O','O','O'],
