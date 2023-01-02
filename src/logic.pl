@@ -9,7 +9,7 @@
 % defines the initial state of the game, with the board (Col-Row given), the turn and the number of pieces left to place.
 initial_state(Col-Row, Board-WhiteTurn-WhiteCount-BlackCount):-
 	gen_2d_array(Row, Col, 'O', Board),
-	asserta((board_size(R, C) :- R is Row, C is Col)),
+	asserta((board_size(R, C) :- R is Row, C is Col, !)),
 	WhiteTurn = 1,
 	WhiteCount is Col*Row/2 - 3,
 	BlackCount is Col*Row/2 - 3.
