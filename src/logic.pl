@@ -11,8 +11,8 @@ initial_state(Col-Row, Board-WhiteTurn-WhiteCount-BlackCount):-
 	gen_2d_array(Row, Col, 'O', Board),
 	asserta((board_size(R, C) :- R is Row, C is Col, !)),
 	WhiteTurn = 1,
-	WhiteCount is Col*Row/2 - 3,
-	BlackCount is Col*Row/2 - 3.
+	WhiteCount is 12,
+	BlackCount is 12.
 
 % drop_phase(+Board, +WhiteCount, +BlackCount, +WhiteTurn-Level-Players, -New_Board)/5
 % defines the drop phase of the game, where the players place their pieces on the board.
@@ -82,8 +82,8 @@ capture_phase(Board, WhiteTurn-Level-[Cplayer,NewP], New_Board):-
 		Winner \= 'O' -> New_Board = Board
 	);
 	Cplayer == computer -> 
-		get_color_from_player(WhiteTurn, Color),
-		choose_move(Board, Color-capture, Level,  CC-CR/NC-NR), 
+		get_color_from_player(WhiteTurn, Color), 
+		choose_move(Board, Color-capture, Level,  CC-CR/NC-NR),
 		move(Board, CC-CR/NC-NR, Color-capture, New_Board1), 
 		next_turn(WhiteTurn, NewT),
 		(
@@ -404,6 +404,15 @@ game_over(Board, Winner):-
 	countElem(L,'B', Bnum),
 	Bnum =< 2-> Winner = 'W'
 	);
-	
+	( 
+		valid_moves(Board, 'W'-capture, L),
+		L==[], Winner = 'B'
+	);
+	( 
+		valid_moves(Board, 'B'-capture, L),
+		L==[], Winner = 'W'
+	);
+
+
 	Winner = 'O'.
 
