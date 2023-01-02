@@ -59,13 +59,13 @@ Another less common way to end the game is by surrounding your opponent's pieces
 
  The game board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array(Row, Col, 'O', Board)/4` predicate, we are able to make our program more modular.
 'B' denotes a black piece and 'W' a white piece
-It is also worthy to note that the size of the board is sored dinamically in the following line:
+It is also worthy to note that the size of the board is stored dinamically in the following line:
 
 ```prolog
 asserta((board_size(R, C) :- R is Row, C is Col, !)),
 ```
 
-Some example of boards:
+Below we present some boards examples in different game stages:
 
 Initial state:
 
@@ -102,7 +102,7 @@ Board = [['O','O','O','O','O'],
 
 #### Current phase
 
-The current phase represents the current phase of the game. This is a useful predicate to have as it allows the ai to know what phase it is in and act accordingly. The phase can be either drop, capture or peek.
+The current phase represents the current phase of the game. This is a useful predicate to have as it allows the AI to know what phase it currently is in and act accordingly. The phase can be either drop, capture or peek.
 
 ```prolog
 % phase(+Phase)/1
@@ -119,7 +119,6 @@ The current player is the player in the head of the turn List. The turn list is 
 % player(+Player)/1
 player(human).
 player(computer).
-
 ```
 
 #### Move
@@ -162,10 +161,10 @@ In the menu, to ensure that the user picks a valid option, we use the `read_unti
 
 ```prolog
 read_until_between(Min, Max, Ret):-
- write('> '),read_number(V),
- between(Min,Max, V) -> Ret is V;
- write('Invalid number!'),nl,
- read_until_between(Min, Max, Ret).
+    write('> '),read_number(V),
+    between(Min,Max, V) -> Ret is V;
+    write('Invalid number!'),nl,
+    read_until_between(Min, Max, Ret).
 ```
 
 ![Menu Input](docs/menu_input.png)
@@ -187,18 +186,18 @@ If all validation succeedes for the specific move type, then the `get_piece/4` a
 ```prolog
 % move(+Board, ?Move, +Color-Phase, -New_Board)/4
 move(Board, CC-CR/NC-NR, Color-Phase, NewBoard) :-
- Phase == capture ->
-  get_piece(Board, CR, CC, CurPos),
-  CurPos == Color,
-  set_piece(Board, CR, CC, 'O', NB),
-  get_piece(Board, NR, NC, NPos),
-  NPos == 'O',
-  set_piece(NB, NR, NC, Color, NewBoard),
-  Cdiff is NC - CC, Rdiff is NR - CR,
-  abs(Cdiff, Cabs), abs(Rdiff, Rabs),
-  Cabs =< 1, Rabs =< 1, Cabs \= Rabs;
- check_cross(Board, NR, NC, Color),
- set_piece(Board, NR, NC, Color, NewBoard).
+    Phase == capture ->
+    get_piece(Board, CR, CC, CurPos),
+    CurPos == Color,
+    set_piece(Board, CR, CC, 'O', NB),
+    get_piece(Board, NR, NC, NPos),
+    NPos == 'O',
+    set_piece(NB, NR, NC, Color, NewBoard),
+    Cdiff is NC - CC, Rdiff is NR - CR,
+    abs(Cdiff, Cabs), abs(Rdiff, Rabs),
+    Cabs =< 1, Rabs =< 1, Cabs \= Rabs;
+    check_cross(Board, NR, NC, Color),
+    set_piece(Board, NR, NC, Color, NewBoard).
 ```
 
 ### Set of Valid Moves
@@ -264,9 +263,9 @@ game_over(Board, Winner):-
 
 ### Computer Evaluation
 
-To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent plus a value to avoid captures of our pc pieces. We noted that this makes the computer more prodent but had the setback of making them sometimes repeat moves endlessly, PCvsPC.
+To evaluate the computer moves, we used the minimax algorithm. This algorithm is a recursive algorithm that calculates the best move to be made by the computer. It does so by calculating the value of all possible moves and choosing the one with the highest value. The value of a move is calculated, not by the number of pieces on the board, but by the defice between the number of captures made by the player and the number of captures made by the opponent plus a value to avoid captures of our pc pieces. We noted that this approach makes the computer more prudent but had the setback of sometimes making them repeat moves endlessly in a PC vs PC mode since neither of them wants to make a false play.
 
-We had the need to add some arguments to the predicate. We added Player-Phase, and Depth, needed for minimax algorithm.
+We had the need to add some arguments to the proposed `value` predicate so we added Player-Phase and Depth, needed for our minimax algorithm implementation.
 
 The evaluation predicate is implemented in the following predicate:
 
