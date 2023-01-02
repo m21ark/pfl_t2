@@ -236,7 +236,6 @@ Finally, if both minmax depth 3 and 5 fail to find a good play, then a random mo
 
 ## Conclusions
 
-We think that the game was a bit more complex then what we were expecting at the beginning of the project
+We think that the game was a bit more complex then what we were expecting at the beginning of the project. We also think that this game is probably one of the hardest of the set of games proposed. We are happy that we managed to finish it, respecting all the rules proposed and making modular code. We got some issues with some rules implemented.For example, It was not trivial to understand all the possible ways of transitions from the drop to the capture phase. It was also not trivial to implement a good evaluation function for the computer and to have a playable design for the game. Despite of that, we were able to solve all the issues and implement a good playable game.
 
-Conclusões do trabalho, incluindo limitações do trabalho desenvolvido (known issues),
-assim como possíveis melhorias identificadas (roadmap) (até 250 palavras)
+A possible improvement would be to implement a better and more random evaluation function for the computer. Ours is to afraid to make mistakes and will sometimes loop endlessly when playing against other computer. It also does not understand the concept of "time", making moves in an incorrect order because it knows that the opponent has no good response. 
