@@ -119,6 +119,12 @@ As the game itself requires at least 3 pieces of each color to play, it isn't ad
 
 FALTA VALIDACAO DE ENTRADA
 
+To validate user input, we have many input related predicates in the `io.pl` file.
+
+Below there's an example of input & output related to a piece move that results in a 3 match which triggers the *peek phase* prompt.
+
+![Capture Input](docs/capture.png)
+
 ### Move execution
 
 This particular game's mechanics required us to alter the predicate suggested as it was missing the phase and color parameters that we needed to check if the move is legal and to know how to move the piece.
