@@ -30,12 +30,13 @@ play:-
 	repeat,
 	clear,
 	game_menu_show, % Shows the game menu
-	read_until_between(0,3, OPT), % Reads the input option
+	read_until_between(0,4, OPT), % Reads the input option
 	switch(OPT, [
 		0: (!), % Exits the game
 		1: set_game_state(human-human-0), % Sets the game state to human vs human
 		2: display_level_pc(human-computer), % Sets the game state to human vs computer
-		3: display_level_pc(computer-computer) % Sets the game state to computer vs computer
+		3: display_level_pc(computer-computer), % Sets the game state to computer vs computer
+		4: display_rules % Displays the rules
 	]),
 	OPT = 0 -> !; % If 0 is selected, exit the game
 	nl, write('End of game.'), nl, nl, fail. % Restart the game loop

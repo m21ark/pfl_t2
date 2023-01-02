@@ -114,6 +114,8 @@ game_menu_show:-
 	print_Vpadd('*', L2, 1),	
 	print_text('3) PC vs PC            ', '*' ,3), nl,
     print_Vpadd('*', L2, 1),	
+	print_text('4) Instructions        ', '*' ,3), nl,
+    print_Vpadd('*', L2, 1),	
     print_text('0) Quit                ', '*' ,3), nl,
 	print_Vpadd('*', L2, 1),	
 	print_n('*', L3), nl.
@@ -203,3 +205,28 @@ display_game_([H|T], N):-
 	display_game_(H,N1),
 	write('| '),write(N1),write('\n '), 
 	display_game_(T,N1).
+
+
+display_rules:-
+
+	nl,nl,write('Game Instructions:'),nl,nl,
+	write('The game is played on a 5x6 board.'), nl,
+	write('Each player (White vs Black) has 12 pieces.'), nl,
+	write('The game as 2 phases:'), nl,
+	write(' - Drop Phase:'), nl,
+	write('     > The goal is to drop your pieces on the board until each player has placed all their pieces.'), nl,
+	write('     > The pieces cant be dropped orthagonally adjacent to any of your other pieces.'),nl,
+	write('     > It may be the case that you cant place any of your pieces, skipping your turn.'),nl,
+	write('     > This phase ends when all pieces are placed or neither user can place anything.'),nl,
+
+	nl,write(' - Capture Phase:'), nl,
+	write('     > The goal is to capture the opponent pieces.'), nl,
+	write('     > Players take turns moving a piece of their own in a cross pattern 1 spot at a time.'), nl,
+	write('     > To make a capture, you need to make exactly 3 of your pieces align in a row or column.'), nl,
+	write('     > If a 3 match takes place, you can remove any of the opponent`s pieces from the board .'), nl,
+	write('     > Wins the player who lefts the opponent only with 2 pieces.'),nl,
+	write('     > Alternatively, a player wins if the opponent has no valid moves to play. '),nl,nl,
+
+	write('Press Enter to continue'),
+	nl,nl,get_char(_).
+	

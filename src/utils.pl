@@ -156,5 +156,6 @@ convert_from_move_to_notation(Col-Row, S) :-
 	atom_concat(ColChar, RowChar, S).
 
 % clear/0
+% Clears the screen.
 clear:-
     write('\33\[2J').
