@@ -11,11 +11,11 @@ This project was developed by:
 
 ## Instalation & Execution
 
-This project was devloped and tested on **SICStus Prolog 4.7.1** on both Windows and Linux.
-The code doesn't require any more instalation steps.
+This project was devloped and tested on **SICStus Prolog 4.7.1** on both *Windows* and *Linux*.
+The code doesn't require any code specific instalation steps.
 
-To run the project open SICStus and load the file  with `[main].`
-After that, to run the game call the main function with `play.`
+To run the project open *SICStus* and load the file  with `[main].`
+After that, to run the game, call the main predicate with `play.`
 
 ## Game Description
 
@@ -27,8 +27,8 @@ The game is played on an empty 5x6 square board and each player has 12 colored p
 
 The game is divided into 2 phases:
 
-- Drop phase (1st)
-- Move phase (2st) which in itself contains the peek phase (when there is a match and you need to capture the opponent piece)
+- **Drop phase** (1st)
+- **Move phase** (2st) &rarr; which in itself contains the **peek phase**
 
 #### Drop phase
 
@@ -37,7 +37,7 @@ If a player can't place any more stones he must pass his turn. This phase contin
 
 #### Move phase
 
-On each turn, each player moves a stone into a orthogonal adjacent cell (diagonal moves aren't allowed). If a player is able to make exactly 3 pieces align in a row or collumn (again, diagonal is forbidden), he may capture any enemy piece on the board as long as it is not part of a 3 match itself.
+On each turn, each player moves a stone into a orthogonal adjacent cell (diagonal moves aren't allowed). If a player is able to make exactly 3 pieces align in a row or column (again, diagonal is forbidden), he may capture any enemy opponent on the board and remove it from the game (peek phase).
 
 Restrictions to have into account:
 
@@ -47,7 +47,7 @@ Restrictions to have into account:
 ### Goal
 
 The goal of the game is to take your oponnent pieces to the point where he has only 2 pieces left, and therefore unable to make a capture.
-Another less common way to end the game is by surrounding your opponent's pieces and prevent him from making any move.
+Another less common way to end the game is by surrounding your opponent's pieces and prevent him from making any valid move.
 
 ## Game Logic
 
@@ -55,7 +55,7 @@ Another less common way to end the game is by surrounding your opponent's pieces
 
 #### Board
 
- Board is represented by a 2d list in which 'O' is an empty space in the board. Using the following predicate, gen_2d_array, we are able to make our program modular and ready to be used in other games/boards.
+ Board is represented by a 2D array in which 'O' represents an empty space on the board. Using the `gen_2d_array/4` predicate, , we are able to make our program modular and ready to be used in other games/boards.
 
 ```prolog
 gen_2d_array(Row, Col, 'O', Board),
